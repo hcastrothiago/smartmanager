@@ -62,19 +62,25 @@ class Login extends StatelessWidget {
               const SizedBox(height: 40),
 
               // BOTÃO LOGIN
-              Container(
+              SizedBox(
                 width: width * 0.8,
                 height: 60,
-                decoration: BoxDecoration(
-                  color: const Color(0xCC8250C3),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.white, width: 1),
-                ),
-                child: Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xCC8250C3),
+                    foregroundColor: Colors.black,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: const BorderSide(color: Colors.white, width: 1),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, "/home");
+                  },
                   child: Text(
                     "Entrar",
                     style: TextStyle(
-                      color: Colors.black,
                       fontSize: width * 0.05,
                       fontWeight: FontWeight.w600,
                     ),
