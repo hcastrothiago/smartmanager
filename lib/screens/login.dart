@@ -52,34 +52,27 @@ class Login extends StatelessWidget {
               const SizedBox(height: 40),
 
               // CAMPO USUÁRIO
-              _CampoEntrada(
-                label: "Nome de Usuário",
-                icon: Icons.person,
-              ),
+              _CampoEntrada(label: "Nome de Usuário", icon: Icons.person),
 
               const SizedBox(height: 20),
 
               // CAMPO SENHA
-              _CampoEntrada(
-                label: "Senha",
-                icon: Icons.lock,
-                isPassword: true,
-              ),
+              _CampoEntrada(label: "Senha", icon: Icons.lock, isPassword: true),
 
               const SizedBox(height: 40),
 
-              // BOTÃO LOGIN GMAIL
+              // BOTÃO LOGIN
               Container(
-                width: width * 0.70,
+                width: width * 0.8,
                 height: 60,
                 decoration: BoxDecoration(
                   color: const Color(0xCC8250C3),
-                  borderRadius: BorderRadius.circular(40),
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.white, width: 1),
                 ),
                 child: Center(
                   child: Text(
-                    "Login com Gmail",
+                    "Entrar",
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: width * 0.05,
@@ -141,6 +134,7 @@ class _CampoEntrada extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width * 0.10),
       child: Container(
+        height: 60,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
