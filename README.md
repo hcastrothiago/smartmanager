@@ -14,3 +14,8 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+# O QUE AINDA É NECESSÁRIO FAZER
+- converter o menu sanduíche para um widget
+- criar um arquivo de rotas para o menu sanduíche consumir devidamente. 
+- criar a rota das atividades físicas
