@@ -56,7 +56,7 @@ class _FirstRunAppState extends State<FirstRunApp> {
                       style: ElevatedButton.styleFrom(
                         minimumSize: Size(double.infinity, 48),
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 100,
+                          horizontal: 20,
                           vertical: 14,
                         ),
                         backgroundColor: Colors.black.withOpacity(0.6),
