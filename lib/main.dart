@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'screens/login.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
