@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/menu_sanduwitch.dart';
 
-class Home extends StatelessWidget {
-  const Home({super.key});
+class FinancialManager extends StatelessWidget {
+  const FinancialManager({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class Home extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Text(
-            'DASHBOARD A SER IMPLEMENTADO',
+            'FINANCEIRO A SER IMPLEMENTADO',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 28,

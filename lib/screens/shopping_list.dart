@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../widgets/menu_sanduwitch.dart';
 
 // Classe de modelo para um item da lista de compras
 class ShoppingItem {
+  // ... (Model class remains the same)
   final String name;
   String category;
   int quantity;
@@ -21,35 +23,27 @@ class ShoppingListScreen extends StatefulWidget {
 }
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
-  // Lista de itens atualmente na lista de compras
+  // ... (State properties remain the same)
   final List<ShoppingItem> _shoppingList = [];
-
-  // Sugestões de categorias genéricas ou itens rápidos
   final List<String> _suggestions = [
     'proteínas',
     'verduras',
     'frutas',
     'doces',
   ];
-
-  // Controlador para o campo de texto de adição de item principal
   final TextEditingController _itemInputController = TextEditingController();
-
-  // Controlador para o campo de texto de quantidade dentro do modal
   final TextEditingController _quantityController = TextEditingController();
 
-  // Função para mostrar o modal de registro de item
+  // Função para mostrar o modal de registro de item (Métodos não mudam)
   void _showItemRegistrationModal(String itemName) {
+    // ... (logic remains the same)
     int tempQuantity = 1;
-    _quantityController.text = tempQuantity
-        .toString(); // Inicializa o controlador do modal
+    _quantityController.text = tempQuantity.toString();
 
-    // Substitui showMoonModal por showDialog (Modal padrão do Material)
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          // Equivalente ao MoonModal com borda squircle no Material
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0),
           ),
@@ -62,7 +56,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Campo de Quantidade (Substitui MoonTextInput)
                   TextFormField(
                     controller: _quantityController,
                     decoration: InputDecoration(
@@ -70,7 +63,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                       hintText: 'Digite a quantidade (ex: 3)',
                       border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
-                        // Botão de incremento (+)
                         icon: const Icon(Icons.add),
                         onPressed: () {
                           setModalState(() {
@@ -82,7 +74,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                         },
                       ),
                       prefixIcon: IconButton(
-                        // Botão de decremento (-)
                         icon: const Icon(Icons.remove),
                         onPressed: () {
                           setModalState(() {
@@ -107,13 +98,11 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
             },
           ),
           actions: [
-            // Botão de Confirmação (Substitui MoonFilledButton)
             ElevatedButton(
               onPressed: () {
                 final int finalQuantity =
                     int.tryParse(_quantityController.text) ?? 1;
 
-                // Validação e lógica de adição/atualização
                 if (_shoppingList.any((item) => item.name == itemName)) {
                   final existingItem = _shoppingList.firstWhere(
                     (item) => item.name == itemName,
@@ -135,19 +124,13 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                   });
                 }
 
-                // Limpa o campo de input principal e fecha o modal
                 _itemInputController.clear();
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
-                minimumSize: const Size(
-                  double.infinity,
-                  48,
-                ), // Assegura largura total
-                backgroundColor: Theme.of(
-                  context,
-                ).primaryColor, // Cor de fundo principal
-                foregroundColor: Colors.white, // Cor do texto
+                minimumSize: const Size(double.infinity, 48),
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
               ),
               child: const Text(
                 'Confirmar Adição',
@@ -158,37 +141,30 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         );
       },
     ).then((_) {
-      // Garante que o controlador do modal seja limpo ao fechar
       _quantityController.clear();
     });
   }
 
-  // Função para construir os chips de sugestão e o campo de input
+  // Função para construir os chips de sugestão e o campo de input (Métodos não mudam)
   Widget _buildInputAndSuggestions(BuildContext context) {
+    // ... (method remains the same)
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Chips de Sugestão
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Wrap(
             spacing: 8.0,
             runSpacing: 4.0,
             children: [
-              // Mapeia a lista de sugestões para chips clicáveis
               ..._suggestions.map(
                 (item) => ActionChip(
                   label: Text(item.toUpperCase()),
-                  // O ActionChip não tem 'backgroundColor', use o style:
                   labelStyle: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
-
-                  // O ActionChip possui o parâmetro onPressed, que é o que você precisa!
                   onPressed: () => _showItemRegistrationModal(item),
-
-                  // Você pode usar o shape para manter a aparência se necessário
                   shape: StadiumBorder(
                     side: BorderSide(
                       color: Theme.of(
@@ -205,15 +181,12 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           ),
         ),
         const SizedBox(height: 16),
-
-        // Campo para Adicionar Item
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             children: [
               Expanded(
                 child: TextFormField(
-                  // Substitui MoonTextInput
                   controller: _itemInputController,
                   decoration: const InputDecoration(
                     labelText: 'Novo Item',
@@ -228,7 +201,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                 ),
               ),
               const SizedBox(width: 8),
-              // Botão de adição (Substitui MoonFilledButton.icon)
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),
@@ -252,16 +224,16 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     );
   }
 
-  // Função para construir o item da lista
+  // Função para construir o item da lista (Métodos não mudam)
   Widget _buildShoppingListItem(
     BuildContext context,
     ShoppingItem item,
     int index,
   ) {
+    // ... (method remains the same)
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Card(
-        // Substitui MoonCard
         elevation: 2,
         margin: EdgeInsets.zero,
         child: Padding(
@@ -269,7 +241,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Nome do Item e Categoria
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -288,8 +259,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                   ),
                 ],
               ),
-
-              // Quantidade e Botão de Remover
               Row(
                 children: [
                   Text(
@@ -301,7 +270,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton(
-                    // Substitui MoonFilledButton.icon (para o delete)
                     onPressed: () {
                       setState(() {
                         _shoppingList.removeAt(index);
@@ -327,68 +295,57 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Definindo um tema básico para simular as cores da Moon Design (piccolo/goku/chichi)
-    final ThemeData theme = ThemeData(
-      primaryColor: const Color(
-        0xFF6366F1,
-      ), // Simula o 'piccolo' (roxo/azul primário)
-      colorScheme: ColorScheme.fromSwatch(
-        primarySwatch: Colors.indigo,
-        accentColor: const Color(
-          0xFFE94E77,
-        ), // Simula o 'chichi' (rosa/vermelho secundário)
-        backgroundColor: const Color(
-          0xFFF7F7F7,
-        ), // Simula o 'goku' (fundo claro)
+    // === MUDANÇA CRÍTICA: REMOVER MaterialApp e definição de tema local ===
+
+    // O widget Home é o paradigma, e ele retorna apenas um Scaffold
+    return Scaffold(
+      drawer: const SandwichMenu(),
+
+      // Adaptando o AppBar para ser mais parecido com o de Home (sem título se não for essencial)
+      appBar: AppBar(
+        title: const Text('🛒 Lista de Compras Inteligente'),
+        // Usando as cores do tema principal para consistência
+        backgroundColor:
+            Theme.of(context).appBarTheme.backgroundColor ??
+            Theme.of(context).colorScheme.primary,
+        foregroundColor:
+            Theme.of(context).appBarTheme.foregroundColor ?? Colors.white,
+        elevation: 4,
       ),
-      useMaterial3: true,
-    );
 
-    return MaterialApp(
-      title: 'Lista de Compras Material',
-      theme: theme,
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('🛒 Lista de Compras Inteligente'),
-          backgroundColor: Theme.of(context).primaryColor,
-          foregroundColor: Colors.white,
-          elevation: 4,
-        ),
-        body: Column(
-          children: [
-            // Área de Input e Sugestões
-            Padding(
-              padding: const EdgeInsets.only(top: 16.0),
-              child: _buildInputAndSuggestions(context),
-            ),
-            const SizedBox(height: 24),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: _buildInputAndSuggestions(context),
+          ),
+          const SizedBox(height: 24),
 
-            // **Lista de Compras**
-            Expanded(
-              child: _shoppingList.isEmpty
-                  ? Center(
-                      child: Text(
-                        'A lista está vazia.\nAdicione seu primeiro item!',
-                        textAlign: TextAlign.center,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.headlineSmall?.copyWith(color: Colors.grey),
-                      ),
-                    )
-                  : ListView.builder(
-                      itemCount: _shoppingList.length,
-                      itemBuilder: (context, index) {
-                        return _buildShoppingListItem(
-                          context,
-                          _shoppingList[index],
-                          index,
-                        );
-                      },
+          Expanded(
+            child: _shoppingList.isEmpty
+                ? Center(
+                    child: Text(
+                      'A lista está vazia.\nAdicione seu primeiro item!',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineSmall?.copyWith(color: Colors.grey),
                     ),
-            ),
-          ],
-        ),
+                  )
+                : ListView.builder(
+                    itemCount: _shoppingList.length,
+                    itemBuilder: (context, index) {
+                      return _buildShoppingListItem(
+                        context,
+                        _shoppingList[index],
+                        index,
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
+    // return MaterialApp(...); // LINHAS REMOVIDAS
   }
 }
