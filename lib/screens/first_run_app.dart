@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../widgets/button.dart';
 
 class FirstRunApp extends StatefulWidget {
   const FirstRunApp({super.key});
@@ -37,7 +38,7 @@ class _FirstRunAppState extends State<FirstRunApp> {
       });
     } else {
       // Redireciona para a Home e remove a tela de onboarding da pilha
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
@@ -67,35 +68,9 @@ class _FirstRunAppState extends State<FirstRunApp> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(
-                          double.infinity,
-                          56,
-                        ), // Aumentei um pouco o tamanho para melhor toque
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
-                        ),
-                        backgroundColor: Colors.black.withOpacity(
-                          0.7,
-                        ), // Escureci levemente para melhor contraste
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: nextPage,
-                      child: Text(
-                        pos < 2 ? 'Próximo Passo' : 'Vamos Iniciar',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                  Button(
+                    label: pos < 2 ? 'Próximo Passo' : 'Vamos Iniciar',
+                    onPressed: nextPage,
                   ),
                 ],
               ),
