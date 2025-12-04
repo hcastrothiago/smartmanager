@@ -203,7 +203,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
           items: const [
             DropdownMenuItem(value: "Masculino", child: Text("Masculino")),
             DropdownMenuItem(value: "Feminino", child: Text("Feminino")),
-            DropdownMenuItem(value: "Outro", child: Text("Outro")),
+            DropdownMenuItem(value: "Gambiarra", child: Text("Gambiarra")),
           ],
           onChanged: (value) {
             setState(() => genero = value);
