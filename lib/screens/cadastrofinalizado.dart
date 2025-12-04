@@ -15,7 +15,7 @@ class CadastroFinalizadoApp extends StatelessWidget {
 class EndForm extends StatelessWidget {
   void _comecarAcao(BuildContext context) {
     // Ação do botão "Começar!"
-    print("Começar pressionado!");
+    //print("Começar pressionado!");
 
     // Mostrar Snackbar de confirmação
     ScaffoldMessenger.of(context).showSnackBar(
