@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'screens/home.dart';
 import 'screens/financial_manager.dart';
 import 'screens/shopping_list.dart';
 import 'screens/gym_workouts.dart';
 import 'screens/login.dart';
 import 'screens/first_run_app.dart';
+import 'screens/cadastrar.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: true,
       home: FirstRunApp(),
       routes: {
-        '/login': (_) => Login(),
+        '/login': (_) => LoginScreen(),
         '/home': (_) => Home(),
         '/shopping_list': (_) => ShoppingListScreen(),
         '/financial_manager': (_) => FinancialManager(),
