@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
+import 'package:smartmanager/screens/financial_manager.dart';
+import 'package:smartmanager/screens/gym_workouts.dart';
 import 'package:smartmanager/screens/home.dart';
 import 'package:smartmanager/screens/shopping_list.dart';
 import 'screens/first_run_app.dart';
-=======
-import 'screens/home.dart';
-import 'screens/financial_manager.dart';
-import 'screens/shopping_list.dart';
-import 'screens/gym_workouts.dart';
->>>>>>> 8688a55dfb7d183ae571f15bae7f4ef2d60364b1
 import 'screens/login.dart';
-import 'screens/first_run_app.dart';
 
 void main() {
   runApp(const MyApp());

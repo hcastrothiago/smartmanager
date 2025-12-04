@@ -24,7 +24,7 @@ class GymWorkouts extends StatelessWidget {
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.w900,
-              color: Colors.grey[500],
+              color: const Color.fromARGB(255, 112, 24, 24),
               letterSpacing: 1.5,
             ),
           ),
