@@ -16,9 +16,11 @@ class Button extends StatelessWidget {
       onPressed: callback,
       style: ButtonStyle(
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.0)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
-        backgroundColor: WidgetStateProperty.all<Color>(Colors.white10),
+        backgroundColor: MaterialStateProperty.all(
+          Colors.black.withOpacity(0.7),
+        ),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints.expand(height: 40),
@@ -26,7 +28,7 @@ class Button extends StatelessWidget {
           child: Text(
             _label,
             style: const TextStyle(
-              color: Colors.blueAccent,
+              color: Colors.white,
               fontSize: 21,
               fontFamily: 'BebasNeue',
             ),

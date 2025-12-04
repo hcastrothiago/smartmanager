@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/menu_sanduwitch.dart';
 
-class Home extends StatelessWidget {
-  const Home({super.key});
+class GymWorkouts extends StatelessWidget {
+  const GymWorkouts({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class Home extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Text(
-            'DASHBOARD A SER IMPLEMENTADO',
+            'TELA DE TREINOS A SER IMPLEMENTADA',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 28,
