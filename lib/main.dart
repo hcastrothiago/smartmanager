@@ -7,6 +7,7 @@ import 'screens/gym_workouts.dart';
 import 'screens/login.dart';
 import 'screens/first_run_app.dart';
 import 'screens/cadastrar.dart';
+import 'screens/cadastrofinalizado.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,6 +27,8 @@ class MyApp extends StatelessWidget {
         '/shopping_list': (_) => ShoppingListScreen(),
         '/financial_manager': (_) => FinancialManager(),
         '/gym_workouts': (_) => GymWorkouts(),
+        '/cadastrofinalizado': (_) => EndForm(),
+
       },
     );
   }
