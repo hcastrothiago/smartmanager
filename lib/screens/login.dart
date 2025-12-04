@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:smartmanager/widgets/button.dart';
+import 'package:flutter/material.dart';
 
-class Login extends StatelessWidget {
-  const Login({super.key});
+
+void main() => runApp(SmartManagerApp());
+
+class SmartManagerApp extends StatelessWidget {
+  const SmartManagerApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'SmartManager',
+      home: LoginScreen(),
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,26 +68,58 @@ class Login extends StatelessWidget {
 
               const SizedBox(height: 40),
 
-              // CAMPO USUÁRIO
-              _CampoEntrada(label: "Nome de Usuário", icon: Icons.person),
+              _CampoEntrada(
+                label: "Nome de Usuário",
+                icon: Icons.person,
+              ),
 
               const SizedBox(height: 20),
 
-              // CAMPO SENHA
-              _CampoEntrada(label: "Senha", icon: Icons.lock, isPassword: true),
-
+              _CampoEntrada(
+                label: "Senha",
+                icon: Icons.lock,
+                isPassword: true,
+              ),
               const SizedBox(height: 40),
 
-              // BOTÃO LOGIN
-              Button(
-                label: "Entrar",
-                onPressed: () {
-                  Navigator.pushNamed(context, "/home");
-                },
+              SizedBox(
+                width: width * 0.70,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: () {
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xCC8250C3),
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(40),
+                      side: const BorderSide(color: Colors.white, width: 1),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon (
+                        Icons.email,
+                        size: width * 0.055,
+                        color: Colors.white,
+                      ),
+                      SizedBox(width: 10), // espaço entre ícone e texto
+                      Text(
+                        "Entrar com E-mail",
+                        style: TextStyle(
+                          fontSize: width * 0.05,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
+
               const SizedBox(height: 30),
 
-              // TEXTO "ESQUECEU A SENHA?"
               RichText(
                 text: TextSpan(
                   children: [
@@ -121,7 +169,6 @@ class _CampoEntrada extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: width * 0.10),
       child: Container(
-        height: 60,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
