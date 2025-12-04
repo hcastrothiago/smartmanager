@@ -5,99 +5,157 @@ class SandwichMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Acessa as cores e o tema padrão do Material Design
     final ThemeData theme = Theme.of(context);
 
-    // Cor de fundo do cabeçalho (geralmente a cor primária do tema)
     final Color headerColor = theme.colorScheme.primary;
-    // Cor do texto/ícone no cabeçalho (contraste com a cor primária)
     final Color onHeaderColor = theme.colorScheme.onPrimary;
-    // Cor dos ícones e texto dos itens (contraste com a cor de fundo do Drawer)
     final Color itemIconColor = theme.colorScheme.onSurface;
 
     return Drawer(
-      child: ListView(
-        // Remove o padding superior para que o DrawerHeader ocupe toda a área
-        padding: EdgeInsets.zero,
+      child: Column(
         children: <Widget>[
-          // Cabeçalho do Menu
           DrawerHeader(
             decoration: BoxDecoration(color: headerColor),
-            child: Text(
-              'Navegação',
-              style: TextStyle(
-                color: onHeaderColor, // Usando a cor de contraste
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+            child: Row(
+              children: [
+                Image(
+                  image: const AssetImage('assets/images/user_profile.png'),
+                  width: 90,
+                  height: 90,
+                  fit: BoxFit.cover,
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Felipe Emanuel',
+                      style: TextStyle(
+                        color: onHeaderColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      'heraclito@thiago.com',
+                      style: TextStyle(color: onHeaderColor, fontSize: 11),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.person_outline, color: itemIconColor),
+                  title: const Text('Perfil'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/profile');
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.home_outlined, color: itemIconColor),
+                  title: const Text('Home'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/home');
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.shopping_cart_outlined,
+                    color: itemIconColor,
+                  ),
+                  title: const Text('Lista de Compras'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/shopping_list');
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.sports_gymnastics_outlined,
+                    color: itemIconColor,
+                  ),
+                  title: const Text('Treinos diários'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/gym_workouts');
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.account_balance_outlined,
+                    color: itemIconColor,
+                  ),
+                  title: const Text('Gestor Financeiro'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/financial_manager');
+                  },
+                ),
+                const Divider(),
+                ListTile(
+                  leading: Icon(Icons.help_outline, color: itemIconColor),
+                  title: const Text('Ajuda'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    debugPrint(
+                      'Ajuda solicitada. Implementar módulo de suporte.',
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          const Divider(height: 1, thickness: 1),
+
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  debugPrint(
+                    'Usuário deslogado. Implementar lógica de autenticação.',
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.surface,
+                  foregroundColor: Colors.red.shade700,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: BorderSide(color: Colors.red.shade100, width: 1),
+                  ),
+                  minimumSize: Size.zero,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.logout, color: Colors.red.shade700, size: 20),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Log Out',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-
-          // Item 0: Ir para Página 1 (Shopping List)
-          ListTile(
-            leading: Icon(
-              Icons.home_outlined,
-              color: itemIconColor, // Cor padrão do tema
-            ),
-            title: const Text('Home'),
-            onTap: () {
-              // Prático e direto: fecha o drawer e navega.
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/home');
-              debugPrint('Navegando para Home');
-            },
-          ),
-
-          // Item 1: Ir para Página 1 (Shopping List)
-          ListTile(
-            leading: Icon(
-              Icons.shopping_cart_outlined,
-              color: itemIconColor, // Cor padrão do tema
-            ),
-            title: const Text('Lista de Compras'),
-            onTap: () {
-              // Prático e direto: fecha o drawer e navega.
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/shopping_list');
-              debugPrint('Navegando para Lista de Compras');
-            },
-          ),
-
-          // Item 2: Ir para Página 2
-          ListTile(
-            leading: Icon(
-              Icons.sports_gymnastics_outlined,
-              color: itemIconColor,
-            ),
-            title: const Text('Treinos diários'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/gym_workouts');
-            },
-          ),
-
-          // Tela Felipe Santos
-          ListTile(
-            leading: Icon(Icons.account_balance_outlined, color: itemIconColor),
-            title: const Text('Gestor Financeiro'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pushNamed(context, '/financial_manager');
-            },
-          ),
-
-          const Divider(),
-
-          // Item para Ação
-          ListTile(
-            leading: Icon(Icons.help_outline, color: itemIconColor),
-            title: const Text('Ajuda'),
-            onTap: () {
-              Navigator.pop(context);
-              // Lógica de ajuda ou FAQ aqui.
-              // Seja inovador e use o widget para algo mais do que navegação!
-              debugPrint('Ajuda solicitada. Implementar módulo de suporte.');
-            },
           ),
         ],
       ),

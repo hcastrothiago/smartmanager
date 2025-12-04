@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart';
+import 'package:smartmanager/screens/default_screen.dart';
 import 'screens/home.dart';
 import 'screens/financial_manager.dart';
 import 'screens/shopping_list.dart';
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
       home: Login(), // <<< COLOQUE SUA TELA AQUI
 =======
       debugShowCheckedModeBanner: true,
-      home: FirstRunApp(),
+      home: DefaultScreen(),
       routes: {
         '/login': (_) => LoginScreen(),
         '/home': (_) => Home(),
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
         '/financial_manager': (_) => FinancialManager(),
         '/gym_workouts': (_) => GymWorkouts(),
         '/cadastrofinalizado': (_) => EndForm(),
-
+        '/tela_padrao': (_) => DefaultScreen(),
       },
 >>>>>>> 57b8722 (rota shopping_list criada, dashboard alterada, ordem do fluxo de rotas alterada)
     );
