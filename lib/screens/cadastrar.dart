@@ -120,7 +120,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       // Adicionar lógica de cadastro aqui
-                      print("Botão salvar pressionado");
+                     // print("Botão salvar pressionado");
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF8B4FF0),
