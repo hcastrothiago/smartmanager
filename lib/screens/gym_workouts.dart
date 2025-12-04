@@ -19,7 +19,7 @@ class GymWorkouts extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Text(
-            'TELA DE TREINOS A SER IMPLEMENTADA',
+            'modificando....',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 28,
