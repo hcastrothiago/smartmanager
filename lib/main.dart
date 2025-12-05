@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
         '/cadastrofinalizado': (_) => EndForm(),
         '/tela_padrao': (_) => DefaultScreen(),
         '/first_run_app': (_) => FirstRunApp(),
+
       },
     );
   }
