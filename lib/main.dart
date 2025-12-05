@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
+import 'package:smartmanager/screens/default_screen.dart';
 import 'screens/home.dart';
 import 'screens/financial_manager.dart';
 import 'screens/shopping_list.dart';
 import 'screens/gym_workouts.dart';
 import 'screens/login.dart';
 import 'screens/first_run_app.dart';
-import 'screens/cadastrar.dart';
 import 'screens/cadastrofinalizado.dart';
 
 void main() {
@@ -28,7 +27,8 @@ class MyApp extends StatelessWidget {
         '/financial_manager': (_) => FinancialManager(),
         '/gym_workouts': (_) => GymWorkouts(),
         '/cadastrofinalizado': (_) => EndForm(),
-
+        '/tela_padrao': (_) => DefaultScreen(),
+        '/first_run_app': (_) => FirstRunApp(),
       },
     );
   }

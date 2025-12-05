@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-
 
 void main() => runApp(SmartManagerApp());
 
@@ -68,18 +66,11 @@ class LoginScreen extends StatelessWidget {
 
               const SizedBox(height: 40),
 
-              _CampoEntrada(
-                label: "Nome de Usuário",
-                icon: Icons.person,
-              ),
+              _CampoEntrada(label: "Nome de Usuário", icon: Icons.person),
 
               const SizedBox(height: 20),
 
-              _CampoEntrada(
-                label: "Senha",
-                icon: Icons.lock,
-                isPassword: true,
-              ),
+              _CampoEntrada(label: "Senha", icon: Icons.lock, isPassword: true),
               const SizedBox(height: 40),
 
               SizedBox(
@@ -87,6 +78,7 @@ class LoginScreen extends StatelessWidget {
                 height: 60,
                 child: ElevatedButton(
                   onPressed: () {
+                    Navigator.pushNamed(context, '/tela_padrao');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xCC8250C3),
@@ -100,7 +92,7 @@ class LoginScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon (
+                      Icon(
                         Icons.email,
                         size: width * 0.055,
                         color: Colors.white,

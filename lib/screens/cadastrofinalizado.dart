@@ -14,9 +14,6 @@ class CadastroFinalizadoApp extends StatelessWidget {
 
 class EndForm extends StatelessWidget {
   void _comecarAcao(BuildContext context) {
-    // Ação do botão "Começar!"
-    //print("Começar pressionado!");
-
     // Mostrar Snackbar de confirmação
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -24,19 +21,13 @@ class EndForm extends StatelessWidget {
           children: [
             const Icon(Icons.check_circle, color: Colors.white),
             const SizedBox(width: 10),
-            const Text('Redirecionando para o app...'),
+            const Text('Redirecionando para sua homepage...'),
           ],
         ),
         backgroundColor: const Color(0xFF4CAF50),
         duration: const Duration(seconds: 2),
       ),
     );
-
-    // Aqui você pode navegar para a tela principal
-    // Navigator.pushReplacement(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => TelaPrincipal()),
-    // );
   }
 
   @override
@@ -79,16 +70,16 @@ class EndForm extends StatelessWidget {
               // IMAGEM DE CONFIRMAÇÃO
               SizedBox(height: height * 0.05),
               Container(
-                width: isPortrait ? width * 0.5 : width * 0.3,
-                height: isPortrait ? width * 0.5 : width * 0.3,
+                width: isPortrait ? width * 0.3 : width * 0.3,
+                height: isPortrait ? width * 0.3 : width * 0.3,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8E8E8),
                   borderRadius: BorderRadius.circular(20),
-                //  image: const DecorationImage(
-               //    fit: BoxFit.contain,
+                  image: const DecorationImage(
+                    image: AssetImage('assets/images/taskcompleted.jpg'),
+                    fit: BoxFit.contain,
                   ),
                 ),
-             // ),
+              ),
 
               // TÍTULO "CADASTRO FINALIZADO"
               SizedBox(height: height * 0.05),
@@ -155,89 +146,11 @@ class EndForm extends StatelessWidget {
                 ),
               ),
 
-              // BONUS: Ícone decorativo (opcional)
+              // ESPAÇO FINAL
               SizedBox(height: height * 0.05),
-              if (isPortrait) ...[
-                _buildDecoratedIcon(),
-                SizedBox(height: height * 0.03),
-              ],
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  // Widget para criar um ícone decorado (similar ao desenho no seu código original)
-  Widget _buildDecoratedIcon() {
-    return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0F0F0),
-        borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: const Color(0xFFE0E0E0), width: 2),
-      ),
-      child: Stack(
-        children: [
-          // Cabeça
-          Center(
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: Colors.black,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-
-          // Corpo
-          Positioned(
-            left: 30,
-            top: 42,
-            child: Container(
-              width: 20,
-              height: 25,
-              decoration: BoxDecoration(
-                color: const Color(0xFF8250C3).withOpacity(0.6),
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
-                  bottomLeft: Radius.circular(5),
-                  bottomRight: Radius.circular(5),
-                ),
-              ),
-            ),
-          ),
-
-          // Detalhes
-          Positioned(
-            left: 35,
-            top: 20,
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: const BoxDecoration(
-                color: Color(0xFFD9D9D9),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-
-          Positioned(
-            right: 35,
-            top: 20,
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: const BoxDecoration(
-                color: Color(0xFFD9D9D9),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
