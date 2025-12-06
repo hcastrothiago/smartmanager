@@ -1,34 +1,50 @@
 import 'package:flutter/material.dart';
-import '../widgets/menu_sanduwitch.dart';
+import 'package:smartmanager/widgets/menu_sanduwitch.dart';
 
 class FinancialManager extends StatelessWidget {
-  const FinancialManager({super.key});
+  final Widget? child;
+
+  const FinancialManager({super.key, this.child});
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context); // <<< NOVO
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment(0.50, -0.00),
+          end: Alignment(0.50, 1.00),
 
-    return Scaffold(
-      appBar: AppBar(
-        title: null,
-        elevation: 0,
-        backgroundColor: theme.scaffoldBackgroundColor,
-      ),
-      drawer: const SandwichMenu(),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Text(
-            'FINANCEIRO A SER IMPLEMENTADO',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
-              color: Colors.grey[500],
-              letterSpacing: 1.5,
-            ),
-          ),
+          colors: [Color(0xFF8250C3), Color(0xFFFFFCFF)],
         ),
+      ),
+
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: const Text('Gestor Financeiro'),
+          backgroundColor:
+              Theme.of(context).appBarTheme.backgroundColor ??
+              Theme.of(context).colorScheme.primary,
+          foregroundColor:
+              Theme.of(context).appBarTheme.foregroundColor ?? Colors.white,
+          elevation: 4,
+        ),
+        drawer: const SandwichMenu(),
+
+        body:
+            child ??
+            const Center(
+              child: Text(
+                'Em breve...',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white70,
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ),
       ),
     );
   }
