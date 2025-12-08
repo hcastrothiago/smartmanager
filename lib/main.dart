@@ -7,6 +7,7 @@ import 'screens/gym_workouts.dart';
 import 'screens/login.dart';
 import 'screens/first_run_app.dart';
 import 'screens/cadastrofinalizado.dart';
+import 'screens/screen_tarefas.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
         '/cadastrofinalizado': (_) => EndForm(),
         '/tela_padrao': (_) => DefaultScreen(),
         '/first_run_app': (_) => FirstRunApp(),
+        '/tarefas': (_) => ScreenTarefas(), //
 
       },
     );
