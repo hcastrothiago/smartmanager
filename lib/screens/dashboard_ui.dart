@@ -119,7 +119,7 @@ class DashboardUI extends StatelessWidget {
                         width: itemWidth,
                         child: GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/gym_workouts');
+                            Navigator.pushNamed(context, '/gym_workouts_empty');
                           },
                           child: const ImageDescribed(
                             description: 'Atividades',

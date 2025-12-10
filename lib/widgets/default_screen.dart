@@ -28,18 +28,7 @@ class DefaultScreen extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-          child:
-              child ??
-              const Center(
-                child: Text(
-                  'TELA PADRÃO',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white70,
-                  ),
-                ),
-              ),
+          child: child ?? const Center(child: Text("Conteúdo padrão da tela")),
         ),
       ),
     );

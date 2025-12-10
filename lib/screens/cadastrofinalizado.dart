@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../widgets/menu_sanduwitch.dart';
 import '../widgets/add_task_button.dart';
 
-class GymWorkouts extends StatelessWidget {
-  const GymWorkouts({super.key});
+class Cadastrofinalizado extends StatelessWidget {
+  const Cadastrofinalizado({super.key});
 
   @override
   Widget build(BuildContext context) {

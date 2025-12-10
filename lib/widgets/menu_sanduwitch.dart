@@ -86,7 +86,7 @@ class SandwichMenu extends StatelessWidget {
                   title: const Text('Treinos diários'),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.pushNamed(context, '/gym_workouts');
+                    Navigator.pushNamed(context, '/gym_workouts_empty');
                   },
                 ),
                 ListTile(

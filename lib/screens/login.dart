@@ -134,6 +134,27 @@ class LoginScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 40),
+
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/cadastrar');
+                },
+                child: RichText(
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Criar Conta",
+                        style: TextStyle(
+                          color: Color(0xCC8250C3),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 40),
             ],
           ),
         ),
