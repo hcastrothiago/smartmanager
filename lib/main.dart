@@ -7,7 +7,6 @@ import 'screens/shopping_list.dart';
 import 'screens/login.dart';
 import 'screens/first_run_app.dart';
 import 'screens/gym_workouts.dart';
-import 'screens/cadastrofinalizado.dart' hide GymWorkouts;
 
 void main() {
   runApp(const MyApp());

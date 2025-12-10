@@ -4,10 +4,9 @@ class Button extends StatelessWidget {
   final String _label;
   final VoidCallback? callback;
 
-  const Button({Key? key, required String label, VoidCallback? onPressed})
+  const Button({super.key, required String label, VoidCallback? onPressed})
     : _label = label,
-      callback = onPressed,
-      super(key: key);
+      callback = onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +17,7 @@ class Button extends StatelessWidget {
         shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
-        backgroundColor: MaterialStateProperty.all(
-          Colors.black.withOpacity(0.7),
-        ),
+        backgroundColor: WidgetStateProperty.all(Colors.black.withOpacity(0.7)),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints.expand(height: 40),

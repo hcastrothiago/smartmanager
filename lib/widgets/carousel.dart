@@ -6,11 +6,11 @@ class AppCarousel extends StatefulWidget {
   final Duration autoPlayDuration;
 
   const AppCarousel({
-    Key? key,
+    super.key,
     required this.items,
     this.height = 180,
     this.autoPlayDuration = const Duration(seconds: 4),
-  }) : super(key: key);
+  });
 
   @override
   State<AppCarousel> createState() => _AppCarouselState();
