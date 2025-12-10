@@ -151,7 +151,6 @@ class _CampoEntrada extends StatelessWidget {
     required this.label,
     required this.icon,
     this.isPassword = false,
-    super.key,
   });
 
   @override

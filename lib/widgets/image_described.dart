@@ -7,12 +7,12 @@ class ImageDescribed extends StatelessWidget {
   final double imageHeight;
 
   const ImageDescribed({
-    Key? key,
+    super.key,
     required this.description,
     required this.imagePath,
     this.spacing = 6,
     this.imageHeight = 150,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -23,28 +23,47 @@ class CarouselCardData {
 class AppCarousel extends StatefulWidget {
   final List<CarouselCardData> items;
   final double height;
+  final Duration autoPlayDuration;
 
-  const AppCarousel({super.key, required this.items, this.height = 180});
+  const AppCarousel({
+    super.key,
+    required this.items,
+    this.height = 180,
+    this.autoPlayDuration = const Duration(seconds: 4),
+  });
 
   @override
   State<AppCarousel> createState() => _AppCarouselState();
 }
 
 class _AppCarouselState extends State<AppCarousel> {
-  static const int kFakeMiddle = 10000;
-  late final int _initialPage;
-  late final PageController _controller;
-
+  final PageController _controller = PageController();
   int _currentIndex = 0;
+  bool _isUserInteracting = false;
 
   @override
   void initState() {
     super.initState();
+    _scheduleAutoPlay();
+  }
 
-    _initialPage = kFakeMiddle * widget.items.length;
-    _controller = PageController(initialPage: _initialPage);
+  void _scheduleAutoPlay() {
+    Future.delayed(widget.autoPlayDuration, _autoPlay);
+  }
 
-    // Sem autoplay, sem animação automática
+  void _autoPlay() {
+    if (!mounted || widget.items.length <= 1) return;
+    if (_isUserInteracting) return; // não avança durante swipe
+
+    final nextPage = (_currentIndex + 1) % widget.items.length;
+
+    _controller.animateToPage(
+      nextPage,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
+
+    _scheduleAutoPlay();
   }
 
   @override
@@ -53,29 +72,21 @@ class _AppCarouselState extends State<AppCarousel> {
       children: [
         SizedBox(
           height: widget.height,
-          child: PageView.builder(
-            controller: _controller,
-            allowImplicitScrolling: true,
-            physics: const BouncingScrollPhysics(),
-            itemBuilder: (_, index) {
-              final realIndex = index % widget.items.length;
-              return _carouselCard(widget.items[realIndex]);
-            },
-            onPageChanged: (index) {
-              final real = index % widget.items.length;
-              setState(() => _currentIndex = real);
 
-              // Reposicionamento invisível para manter o loop estável
-              final lowerBound = widget.items.length;
-              final upperBound =
-                  (kFakeMiddle * widget.items.length) + widget.items.length;
-
-              if (index <= lowerBound || index >= upperBound) {
-                Future.microtask(() {
-                  _controller.jumpToPage(_initialPage + real);
-                });
-              }
+          /// 🔥 LISTENER adiciona pausa no autoplay quando o usuário toca/arrasta
+          child: Listener(
+            onPointerDown: (_) => _isUserInteracting = true,
+            onPointerUp: (_) {
+              _isUserInteracting = false;
+              _scheduleAutoPlay();
             },
+
+            child: PageView.builder(
+              controller: _controller,
+              itemCount: widget.items.length,
+              onPageChanged: (i) => setState(() => _currentIndex = i),
+              itemBuilder: (_, i) => _carouselCard(widget.items[i]),
+            ),
           ),
         ),
 

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:smartmanager/widgets/carousel.dart';
 import 'package:smartmanager/widgets/image_described.dart';
 import 'package:smartmanager/widgets/menu_sanduwitch.dart';
+import 'package:smartmanager/widgets/text_box.dart';
+import 'package:smartmanager/widgets/my_pie_chart.dart';
 
 class DashboardUI extends StatelessWidget {
   const DashboardUI({super.key});
@@ -115,27 +117,42 @@ class DashboardUI extends StatelessWidget {
                       ),
                       SizedBox(
                         width: itemWidth,
-                        child: const ImageDescribed(
-                          description: 'Atividades',
-                          imagePath:
-                              'assets/images/atividade-removebg-preview.png',
-                          spacing: 4,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/gym_workouts');
+                          },
+                          child: const ImageDescribed(
+                            description: 'Atividades',
+                            imagePath:
+                                'assets/images/atividade-removebg-preview.png',
+                            spacing: 4,
+                          ),
                         ),
                       ),
                       SizedBox(
                         width: itemWidth,
-                        child: const ImageDescribed(
-                          description: 'Finanças',
-                          imagePath: 'assets/images/financas.png',
-                          spacing: 4,
+                        child: GestureDetector(
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            '/financial_manager',
+                          ),
+                          child: const ImageDescribed(
+                            description: 'Finanças',
+                            imagePath: 'assets/images/financas.png',
+                            spacing: 4,
+                          ),
                         ),
                       ),
                       SizedBox(
                         width: itemWidth,
-                        child: const ImageDescribed(
-                          description: 'Alimentação',
-                          imagePath: 'assets/images/alimentacao.png',
-                          spacing: 4,
+                        child: GestureDetector(
+                          onTap: () =>
+                              Navigator.pushNamed(context, '/shopping_list'),
+                          child: const ImageDescribed(
+                            description: 'Alimentação',
+                            imagePath: 'assets/images/alimentacao.png',
+                            spacing: 4,
+                          ),
                         ),
                       ),
                     ],
@@ -146,22 +163,39 @@ class DashboardUI extends StatelessWidget {
 
             AppCarousel(
               items: [
-                _carouselCard(
-                  'Próximos Eventos',
-                  'Produtividade',
-                  Icons.event_busy_outlined,
+                CarouselCardData(
+                  title: 'Próximos Eventos',
+                  subTitle: 'Produtividade',
+                  text1: 'Reunião: 10:00',
+                  text2: 'Treino: 21:30',
+                  leftIcon: Icons.account_balance_wallet_outlined,
+                  color: Colors.white,
+                  component: MyPieChart(percent: 80),
                 ),
-                _carouselCard(
-                  'Finanças',
-                  'Recursos',
-                  Icons.account_balance_wallet_outlined,
+                CarouselCardData(
+                  title: 'Finanças',
+                  subTitle: 'Recursos',
+                  text1: 'Compras: Mercado',
+                  leftIcon: Icons.account_balance_wallet_outlined,
+                  component: const TextBox(
+                    text: "R\$ 435,66",
+                  ), // coloque o widget desejado
                 ),
-                _carouselCard(
-                  'Alimentação',
-                  'Metas',
-                  Icons.restaurant_menu_outlined,
+                CarouselCardData(
+                  title: 'Alimentação',
+                  subTitle: 'Metas',
+                  text1: 'Dieta: Low Carb',
+                  text2: 'Dia de Compras: 22/10',
+                  leftIcon: Icons.restaurant_menu_outlined,
+                  component: const TextBox(text: "-Kg"),
                 ),
-                _carouselCard('Atividades', '', Icons.people),
+                CarouselCardData(
+                  title: 'Atividades',
+                  subTitle: '',
+                  text1: 'Corrida: hoje, 15:00',
+                  leftIcon: Icons.people,
+                  component: const TextBox(text: "45 min. 🕘"),
+                ),
               ],
             ),
           ],
@@ -169,89 +203,4 @@ class DashboardUI extends StatelessWidget {
       ),
     );
   }
-}
-
-Widget _carouselCard(
-  String title,
-  String subTitle,
-  IconData icon, {
-  Color color = Colors.white,
-}) {
-  return Container(
-    margin: const EdgeInsets.symmetric(horizontal: 12),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(18),
-      color: color.withOpacity(0.85),
-    ),
-    child: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: <Widget>[
-              Expanded(
-                flex: 3,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Icon(
-                            icon,
-                            color: const Color.fromARGB(255, 130, 80, 195),
-                            size: 30,
-                          ),
-                          SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Texto 1 grande'),
-                              Text('Texto 2 pequeno'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    children: [
-                      Text(
-                        subTitle,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Icon(
-                        Icons.star,
-                        color: Color.fromARGB(255, 130, 80, 195),
-                        size: 30,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
 }
