@@ -8,8 +8,13 @@ import 'screens/login.dart';
 import 'screens/first_run_app.dart';
 import 'screens/gym_workouts.dart';
 import 'screens/gym_workouts_empty.dart';
+// configuração do firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const MyApp());
 }
 

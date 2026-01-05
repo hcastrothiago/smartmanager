@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "885930927834",
+    "project_id": "smartmanager-cc10",
+    "storage_bucket": "smartmanager-cc10.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:885930927834:android:0a8d99a39464dba6faa7e3",
+        "android_client_info": {
+          "package_name": "com.example.smartmanager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsKHDLOdpJB9M5lZcSk__yooNZJbc0DRE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
