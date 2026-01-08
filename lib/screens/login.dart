@@ -34,7 +34,7 @@ class LoginScreen extends StatelessWidget {
                 width: width,
                 height: height * 0.28,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF8250C3),
+                  color: Color.fromARGB(255, 81, 28, 150),
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(25),
                     bottomRight: Radius.circular(25),
@@ -78,7 +78,7 @@ class LoginScreen extends StatelessWidget {
                 height: 60,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/tela_padrao');
+                    Navigator.pushNamed(context, '/dashboard_ui');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xCC8250C3),
@@ -134,6 +134,27 @@ class LoginScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 40),
+
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/cadastrar');
+                },
+                child: RichText(
+                  text: const TextSpan(
+                    children: [
+                      TextSpan(
+                        text: "Criar Conta",
+                        style: TextStyle(
+                          color: Color(0xCC8250C3),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 40),
             ],
           ),
         ),
@@ -151,7 +172,6 @@ class _CampoEntrada extends StatelessWidget {
     required this.label,
     required this.icon,
     this.isPassword = false,
-    super.key,
   });
 
   @override

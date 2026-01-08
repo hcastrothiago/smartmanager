@@ -1,17 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(SmartManagerApp());
-
-class SmartManagerApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: CadastroScreen(),
-    );
-  }
-}
-
 class CadastroScreen extends StatefulWidget {
   const CadastroScreen({super.key});
 
@@ -94,10 +82,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(
-                    width: width * 0.40,
-                    child: _dropdown(),
-                  ),
+                  SizedBox(width: width * 0.40, child: _dropdown()),
                   const SizedBox(width: 20),
                   SizedBox(
                     width: width * 0.40,
@@ -120,7 +105,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       // Adicionar lógica de cadastro aqui
-                     // print("Botão salvar pressionado");
+                      // print("Botão salvar pressionado");
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF8B4FF0),
@@ -131,12 +116,17 @@ class _CadastroScreenState extends State<CadastroScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
-                          'SALVAR',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/login');
+                          },
+                          child: const Text(
+                            'SALVAR',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 8),
@@ -165,7 +155,8 @@ class _CadastroScreenState extends State<CadastroScreen> {
       ),
     );
   }
-//fim salvar
+
+  //fim salvar
   // CAMPO PADRÃO
   Widget _campo(String hint, TextEditingController controller) {
     return Padding(
@@ -178,10 +169,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
         ),
         child: TextField(
           controller: controller,
-          decoration: InputDecoration(
-            hintText: hint,
-            border: InputBorder.none,
-          ),
+          decoration: InputDecoration(hintText: hint, border: InputBorder.none),
         ),
       ),
     );

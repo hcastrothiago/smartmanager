@@ -53,10 +53,10 @@ class SandwichMenu extends StatelessWidget {
               children: <Widget>[
                 ListTile(
                   leading: Icon(Icons.person_outline, color: itemIconColor),
-                  title: const Text('Perfil'),
+                  title: const Text('Cadastrar'),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.pushNamed(context, '/profile');
+                    Navigator.pushNamed(context, '/cadastrar');
                   },
                 ),
                 ListTile(
@@ -86,7 +86,7 @@ class SandwichMenu extends StatelessWidget {
                   title: const Text('Treinos diários'),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.pushNamed(context, '/gym_workouts');
+                    Navigator.pushNamed(context, '/gym_workouts_empty');
                   },
                 ),
                 ListTile(
@@ -122,9 +122,7 @@ class SandwichMenu extends StatelessWidget {
             child: Center(
               child: ElevatedButton(
                 onPressed: () {
-                  debugPrint(
-                    'Usuário deslogado. Implementar lógica de autenticação.',
-                  );
+                  Navigator.pushNamed(context, '/login');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.surface,
