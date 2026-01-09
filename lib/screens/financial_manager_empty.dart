@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:smartmanager/widgets/default_screen.dart';
 import 'package:smartmanager/widgets/add_task_button.dart';
-import 'package:smartmanager/widgets/information_card.dart';
+import 'package:smartmanager/widgets/information_card.dart'; // O widget com o botão embutido
 import 'package:smartmanager/screens/financial_manager.dart';
 
 class FinancialManagerEmpty extends StatelessWidget {
@@ -29,15 +29,22 @@ class FinancialManagerEmpty extends StatelessWidget {
             );
           }
 
-          if (snapshot.hasError ||
-              !snapshot.hasData ||
-              snapshot.data!.docs.isEmpty) {
-            return _buildEmptyState(context);
+          // VISÃO INICIAL (TELA VAZIA) - Sua visão original
+          if (!snapshot.hasData ||
+              snapshot.data!.docs.isEmpty ||
+              currentUser == null) {
+            return _buildEmptyLayout(context);
           }
 
+          // VISÃO COM REGISTROS
           final entries = snapshot.data!.docs
               .map((doc) => FinancialEntry.fromFirestore(doc))
               .toList();
+          entries.sort(
+            (a, b) => (a.dueDate ?? DateTime.now()).compareTo(
+              b.dueDate ?? DateTime.now(),
+            ),
+          );
 
           return Stack(
             children: [
@@ -59,9 +66,11 @@ class FinancialManagerEmpty extends StatelessWidget {
                     badgeColors: const [
                       Colors.blue,
                       Colors.purple,
-                      Colors.orange,
+                      Colors.green,
                     ],
-                    onDelete: () => _deleteEntry(entry.documentId),
+                    onDelete: () => _deleteEntry(
+                      entry.documentId,
+                    ), // Chama a função de remoção
                   );
                 },
               ),
@@ -82,28 +91,39 @@ class FinancialManagerEmpty extends StatelessWidget {
     }
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    return Stack(
+  Widget _buildEmptyLayout(BuildContext context) {
+    return Column(
       children: [
-        const Center(
-          child: Text(
-            "Nenhum registro encontrado.",
-            style: TextStyle(color: Colors.white),
+        const SizedBox(height: 90),
+        Center(
+          child: Column(
+            children: [
+              Image.asset(
+                'assets/images/empty_financial.png',
+                height: 200,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "Você não possui nenhuma transação.",
+                style: TextStyle(fontSize: 17, color: Colors.white),
+              ),
+            ],
           ),
         ),
+        const Spacer(),
         _buildAddButton(context),
       ],
     );
   }
 
   Widget _buildAddButton(BuildContext context) {
-    return Positioned(
-      bottom: 24,
-      right: 24,
-      child: AddTaskButton(
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const FinancialManager()),
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Align(
+        alignment: Alignment.bottomRight,
+        child: AddTaskButton(
+          onPressed: () => Navigator.pushNamed(context, '/financial_manager'),
         ),
       ),
     );

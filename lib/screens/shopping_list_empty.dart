@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:smartmanager/widgets/default_screen.dart';
 import 'package:smartmanager/widgets/add_task_button.dart';
 import 'package:smartmanager/widgets/information_card.dart';
 
-class GymWorkoutsEmpty extends StatelessWidget {
-  const GymWorkoutsEmpty({super.key});
+class ShoppingListEmpty extends StatelessWidget {
+  const ShoppingListEmpty({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class GymWorkoutsEmpty extends StatelessWidget {
       child: StreamBuilder<QuerySnapshot>(
         stream: currentUser != null
             ? FirebaseFirestore.instance
-                  .collection('gym_workouts')
+                  .collection('shopping_lists')
                   .where('userId', isEqualTo: currentUser.uid)
                   .snapshots()
             : null,
@@ -27,15 +28,11 @@ class GymWorkoutsEmpty extends StatelessWidget {
             );
           }
 
-          // LÓGICA DE TELA VAZIA: Imagem despertador.png
+          // Lógica de Tela Vazia com imagem carrinho_vazio.png
           if (!snapshot.hasData ||
               snapshot.data!.docs.isEmpty ||
               currentUser == null) {
-            return _buildEmptyState(
-              context,
-              'assets/images/despertador.png',
-              "Você não possui treinos registrados.",
-            );
+            return _buildEmptyState(context);
           }
 
           return Stack(
@@ -48,14 +45,16 @@ class GymWorkoutsEmpty extends StatelessWidget {
                   final data = doc.data() as Map<String, dynamic>;
 
                   return InformationCard(
-                    title: data['exercicio'] ?? 'Treino Sem Nome',
-                    value: '${data['calorias'] ?? 0} kcal',
-                    valueColor: Colors.deepOrange,
-                    subTitle: data['duracao'] ?? '0 min',
-                    badgeLabels: ['Academia', data['intensidade'] ?? 'Média'],
-                    badgeColors: const [Colors.green, Colors.red],
+                    title: data['tipoDieta'] ?? 'Minha Dieta',
+                    value: 'Ver Detalhes', // Texto fixo para o valor
+                    valueColor: Colors.blueAccent,
+                    subTitle: data['prazo'] != null
+                        ? 'Até: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(data['prazo']))}'
+                        : '',
+                    badgeLabels: const ['Dieta'],
+                    badgeColors: const [Colors.green],
                     onDelete: () => FirebaseFirestore.instance
-                        .collection('gym_workouts')
+                        .collection('shopping_lists')
                         .doc(doc.id)
                         .delete(),
                   );
@@ -69,22 +68,22 @@ class GymWorkoutsEmpty extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(
-    BuildContext context,
-    String imagePath,
-    String message,
-  ) {
+  Widget _buildEmptyState(BuildContext context) {
     return Column(
       children: [
         const SizedBox(height: 90),
         Center(
           child: Column(
             children: [
-              Image.asset(imagePath, height: 200, fit: BoxFit.contain),
+              Image.asset(
+                'assets/images/carrinho_vazio.png',
+                height: 200,
+                fit: BoxFit.contain,
+              ),
               const SizedBox(height: 20),
-              Text(
-                message,
-                style: const TextStyle(fontSize: 17, color: Colors.white),
+              const Text(
+                "Sua lista de compras está vazia.",
+                style: TextStyle(fontSize: 17, color: Colors.white),
               ),
             ],
           ),
@@ -101,7 +100,7 @@ class GymWorkoutsEmpty extends StatelessWidget {
       child: Align(
         alignment: Alignment.bottomRight,
         child: AddTaskButton(
-          onPressed: () => Navigator.pushNamed(context, '/gym_workouts'),
+          onPressed: () => Navigator.pushNamed(context, '/shopping_list'),
         ),
       ),
     );

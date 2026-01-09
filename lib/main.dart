@@ -5,6 +5,7 @@ import 'package:smartmanager/screens/default_screen.dart';
 import 'package:smartmanager/screens/financial_manager.dart';
 import 'screens/financial_manager_empty.dart';
 import 'screens/shopping_list.dart';
+import 'screens/shopping_list_empty.dart';
 import 'screens/login.dart';
 import 'screens/first_run_app.dart';
 import 'screens/gym_workouts.dart';
@@ -32,7 +33,8 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const DashboardUI(),
         '/cadastrar': (context) => const CadastroScreen(),
-        '/shopping_list': (context) => const ShoppingListScreen(),
+        '/shopping_list': (context) => const ShoppingList(),
+        '/shopping_list_empty': (_) => ShoppingListEmpty(),
         '/financial_manager': (context) => const FinancialManager(),
         '/financial_manager_empty': (_) => FinancialManagerEmpty(),
         '/gym_workouts': (context) => const GymWorkouts(),

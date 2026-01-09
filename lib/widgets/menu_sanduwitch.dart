@@ -57,10 +57,10 @@ class SandwichMenu extends StatelessWidget {
                     Icons.shopping_cart_outlined,
                     color: itemIconColor,
                   ),
-                  title: const Text('Lista de Compras'),
+                  title: const Text('Dieta'),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.pushNamed(context, '/shopping_list');
+                    Navigator.pushNamed(context, '/shopping_list_empty');
                   },
                 ),
                 ListTile(
