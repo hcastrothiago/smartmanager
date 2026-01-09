@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:smartmanager/screens/cadastrar.dart';
 import 'package:smartmanager/screens/dashboard_ui.dart';
 import 'package:smartmanager/screens/default_screen.dart';
-import 'screens/financial_manager.dart';
+import 'package:smartmanager/screens/financial_manager.dart';
+import 'screens/financial_manager_empty.dart';
 import 'screens/shopping_list.dart';
 import 'screens/login.dart';
 import 'screens/first_run_app.dart';
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         '/cadastrar': (context) => const CadastroScreen(),
         '/shopping_list': (context) => const ShoppingListScreen(),
         '/financial_manager': (context) => const FinancialManager(),
+        '/financial_manager_empty': (_) => FinancialManagerEmpty(),
         '/gym_workouts': (context) => const GymWorkouts(),
         '/gym_workouts_empty': (_) => GymWorkoutsEmpty(),
         '/tela_padrao': (_) => DefaultScreen(),

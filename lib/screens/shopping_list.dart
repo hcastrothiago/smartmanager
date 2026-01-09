@@ -3,9 +3,8 @@ import '../widgets/menu_sanduwitch.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-// Classe de modelo para um item da lista de compras
 class ShoppingItem {
-  final String? documentId; // ID do documento no Firestore
+  final String? documentId;
   final String name;
   String category;
   int quantity;
@@ -13,16 +12,14 @@ class ShoppingItem {
   ShoppingItem({
     this.documentId,
     required this.name,
-    this.category = 'Outros', // Categoria padrão
+    this.category = 'Outros',
     this.quantity = 1,
   });
 
-  // Método para converter o item em um Map para salvar no Firestore
   Map<String, dynamic> toMap() {
     return {'name': name, 'category': category, 'quantity': quantity};
   }
 
-  // Factory constructor para criar um ShoppingItem a partir de um documento do Firestore
   factory ShoppingItem.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return ShoppingItem(
@@ -66,7 +63,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     super.dispose();
   }
 
-  // Método para carregar a lista de compras do Firestore
   Future<void> _loadShoppingList() async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
@@ -111,7 +107,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     }
   }
 
-  // Método para salvar um item no Firestore
   Future<String?> _saveItemToFirestore(ShoppingItem item) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
@@ -131,14 +126,12 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       itemData['userId'] = currentUser.uid;
 
       if (item.documentId != null) {
-        // Atualiza item existente (não altera o createdAt)
         await FirebaseFirestore.instance
             .collection('shopping_list')
             .doc(item.documentId)
             .update(itemData);
         return item.documentId;
       } else {
-        // Adiciona novo item e retorna o documentId criado
         itemData['createdAt'] = FieldValue.serverTimestamp();
         final docRef = await FirebaseFirestore.instance
             .collection('shopping_list')
@@ -154,13 +147,12 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           ),
         );
       }
-      // Recarrega a lista em caso de erro para manter sincronização
+
       _loadShoppingList();
       return null;
     }
   }
 
-  // Método para excluir um item do Firestore
   Future<void> _deleteItemFromFirestore(String documentId) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) {
@@ -189,14 +181,12 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           ),
         );
       }
-      // Recarrega a lista em caso de erro para manter sincronização
+
       _loadShoppingList();
     }
   }
 
-  // Função para mostrar o modal de registro de item (Métodos não mudam)
   void _showItemRegistrationModal(String itemName) {
-    // ... (logic remains the same)
     int tempQuantity = 1;
     _quantityController.text = tempQuantity.toString();
 
@@ -263,13 +253,11 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                 final int finalQuantity =
                     int.tryParse(_quantityController.text) ?? 1;
 
-                // Verifica se o item já existe na lista
                 final existingItemIndex = _shoppingList.indexWhere(
                   (item) => item.name.toLowerCase() == itemName.toLowerCase(),
                 );
 
                 if (existingItemIndex != -1) {
-                  // Item já existe - atualiza a quantidade
                   final existingItem = _shoppingList[existingItemIndex];
                   final updatedItem = ShoppingItem(
                     documentId: existingItem.documentId,
@@ -278,7 +266,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                     quantity: existingItem.quantity + finalQuantity,
                   );
 
-                  // Salva a atualização no Firestore
                   final savedId = await _saveItemToFirestore(updatedItem);
 
                   if (mounted && savedId != null) {
@@ -287,7 +274,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                     });
                   }
                 } else {
-                  // Novo item - cria e salva no Firestore
                   final newItem = ShoppingItem(
                     name: itemName,
                     quantity: finalQuantity,
@@ -296,11 +282,9 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                         : 'Outros',
                   );
 
-                  // Salva no Firestore e obtém o documentId
                   final savedId = await _saveItemToFirestore(newItem);
 
                   if (mounted && savedId != null) {
-                    // Atualiza o item com o documentId retornado
                     final savedItem = ShoppingItem(
                       documentId: savedId,
                       name: newItem.name,
@@ -312,7 +296,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                       _shoppingList.add(savedItem);
                     });
                   } else if (mounted) {
-                    // Em caso de erro, recarrega a lista
                     _loadShoppingList();
                   }
                 }
@@ -338,9 +321,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     });
   }
 
-  // Função para construir os chips de sugestão e o campo de input (Métodos não mudam)
   Widget _buildInputAndSuggestions(BuildContext context) {
-    // ... (method remains the same)
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -417,13 +398,11 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     );
   }
 
-  // Função para construir o item da lista (Métodos não mudam)
   Widget _buildShoppingListItem(
     BuildContext context,
     ShoppingItem item,
     int index,
   ) {
-    // ... (method remains the same)
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Card(
@@ -466,12 +445,10 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                     onPressed: () async {
                       final itemToDelete = _shoppingList[index];
 
-                      // Remove da lista local primeiro para feedback visual imediato
                       setState(() {
                         _shoppingList.removeAt(index);
                       });
 
-                      // Exclui do Firestore
                       if (itemToDelete.documentId != null) {
                         await _deleteItemFromFirestore(
                           itemToDelete.documentId!,
@@ -498,16 +475,12 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // === MUDANÇA CRÍTICA: REMOVER MaterialApp e definição de tema local ===
-
-    // O widget Home é o paradigma, e ele retorna apenas um Scaffold
     return Scaffold(
       drawer: const SandwichMenu(),
 
-      // Adaptando o AppBar para ser mais parecido com o de Home (sem título se não for essencial)
       appBar: AppBar(
         title: const Text('🛒 Lista de Compras'),
-        // Usando as cores do tema principal para consistência
+
         backgroundColor:
             Theme.of(context).appBarTheme.backgroundColor ??
             Theme.of(context).colorScheme.primary,
@@ -551,6 +524,5 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         ],
       ),
     );
-    // return MaterialApp(...); // LINHAS REMOVIDAS
   }
 }

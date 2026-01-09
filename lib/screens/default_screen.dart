@@ -42,7 +42,11 @@ class DefaultScreen extends StatelessWidget {
                   fontWeight: FontWeight.w900,
                   color: Colors.white70,
                   letterSpacing: 1.5,
-                ),
+                ), // -----------------------------------------------------------
+                // SOLUÇÃO: Pré-carregar todas as imagens do onboarding na memória.
+                // Isso garante que quando o widget for construído, a imagem já esteja
+                // decodificada e pronta, eliminando o "jank" (lentidão) inicial.
+                // -----------------------------------------------------------
               ),
             ),
       ),

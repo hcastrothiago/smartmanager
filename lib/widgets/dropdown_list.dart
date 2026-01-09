@@ -1,11 +1,9 @@
-// dropdown_list.dart
 import 'dart:collection';
 import 'package:flutter/material.dart';
 
 typedef MenuEntry = DropdownMenuEntry<String>;
 
 class DropdownList extends StatefulWidget {
-  // ... (propriedades inalteradas)
   final List<String> values;
   final String? initialValue;
   final void Function(String?)? onChanged;

@@ -82,7 +82,7 @@ class SandwichMenu extends StatelessWidget {
                   title: const Text('Gestor Financeiro'),
                   onTap: () {
                     Navigator.pop(context);
-                    Navigator.pushNamed(context, '/financial_manager');
+                    Navigator.pushNamed(context, '/financial_manager_empty');
                   },
                 ),
                 const Divider(),

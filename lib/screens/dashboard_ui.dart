@@ -6,10 +6,16 @@ import 'package:smartmanager/widgets/image_described.dart';
 import 'package:smartmanager/widgets/menu_sanduwitch.dart';
 import 'package:smartmanager/widgets/text_box.dart';
 import 'package:smartmanager/widgets/my_pie_chart.dart';
+import 'package:intl/intl.dart';
 
-class DashboardUI extends StatelessWidget {
+class DashboardUI extends StatefulWidget {
   const DashboardUI({super.key});
 
+  @override
+  State<DashboardUI> createState() => _DashboardUIState();
+}
+
+class _DashboardUIState extends State<DashboardUI> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
@@ -143,47 +149,229 @@ class DashboardUI extends StatelessWidget {
               ),
             ),
 
-            AppCarousel(
-              items: [
-                CarouselCardData(
-                  title: 'Próximos Eventos',
-                  subTitle: 'Produtividade',
-                  text1: 'Reunião: 10:00',
-                  text2: 'Treino: 21:30',
-                  leftIcon: Icons.account_balance_wallet_outlined,
-                  color: Colors.white,
-                  component: MyPieChart(percent: 80),
-                ),
-                CarouselCardData(
-                  title: 'Finanças',
-                  subTitle: 'Recursos',
-                  text1: 'Compras: Mercado',
-                  leftIcon: Icons.account_balance_wallet_outlined,
-                  component: const TextBox(
-                    text: "R\$ 435,66",
-                  ), // coloque o widget desejado
-                ),
-                CarouselCardData(
-                  title: 'Alimentação',
-                  subTitle: 'Metas',
-                  text1: 'Dieta: Low Carb',
-                  text2: 'Dia de Compras: 22/10',
-                  leftIcon: Icons.restaurant_menu_outlined,
-                  component: const TextBox(text: "-Kg"),
-                ),
-                CarouselCardData(
-                  title: 'Atividades',
-                  subTitle: '',
-                  text1: 'Corrida: hoje, 15:00',
-                  leftIcon: Icons.people,
-                  component: const TextBox(text: "45 min. 🕘"),
-                ),
-              ],
-            ),
+            _CarouselBuilder(),
           ],
         ),
       ),
     );
+  }
+}
+
+class _CarouselBuilder extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) {
+      return const SizedBox.shrink();
+    }
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('gym_workouts')
+          .where('userId', isEqualTo: currentUser.uid)
+          .snapshots(),
+      builder: (context, tasksSnapshot) {
+        return StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('financial_entries')
+              .where('userId', isEqualTo: currentUser.uid)
+              .snapshots(),
+          builder: (context, financialSnapshot) {
+            return StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('shopping_list')
+                  .where('userId', isEqualTo: currentUser.uid)
+                  .snapshots(),
+              builder: (context, shoppingSnapshot) {
+                // Processar tarefas para eventos e atividades
+                List<Map<String, dynamic>> tasks = [];
+                if (tasksSnapshot.hasData && tasksSnapshot.data != null) {
+                  tasks = tasksSnapshot.data!.docs.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    DateTime date = DateTime.now();
+                    if (data['createdAt'] != null) {
+                      final timestamp = data['createdAt'] as Timestamp;
+                      date = timestamp.toDate();
+                    }
+                    return {
+                      'id': doc.id,
+                      'tipo': data['tipo']?.toString() ?? 'Atividade',
+                      'frequencia': data['frequencia']?.toString() ?? '',
+                      'duracao': data['duracao']?.toString() ?? 'Não especificado',
+                      'calorias': data['calorias']?.toString() ?? '0',
+                      'date': date,
+                    };
+                  }).toList();
+                  
+                  // Ordenar por data
+                  tasks.sort((a, b) => (a['date'] as DateTime).compareTo(b['date'] as DateTime));
+                }
+
+                // Filtrar eventos futuros (próximos eventos) e passados
+                final now = DateTime.now();
+                final upcomingTasks = tasks.where((task) {
+                  return (task['date'] as DateTime).isAfter(now);
+                }).take(2).toList();
+                
+                final pastTasks = tasks.where((task) {
+                  return (task['date'] as DateTime).isBefore(now);
+                }).toList();
+
+                // Calcular produtividade para o gráfico
+                final totalTasks = tasks.length;
+                final completedTasks = pastTasks.length;
+                final productivityPercent = totalTasks > 0 
+                    ? (completedTasks / totalTasks * 100).round()
+                    : 0;
+
+                // Processar lançamentos financeiros
+                List<Map<String, dynamic>> financialEntries = [];
+                double totalReceitas = 0.0;
+                double totalDespesas = 0.0;
+                
+                if (financialSnapshot.hasData && financialSnapshot.data != null) {
+                  financialEntries = financialSnapshot.data!.docs.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    return {
+                      'id': doc.id,
+                      'description': data['description'] ?? '',
+                      'value': (data['value'] ?? 0.0).toDouble(),
+                      'nature': data['nature'] ?? 'Despesa',
+                      'dueDate': data['dueDate'] != null 
+                          ? DateTime.parse(data['dueDate'])
+                          : null,
+                    };
+                  }).toList();
+
+                  // Calcular totais
+                  for (var entry in financialEntries) {
+                    if (entry['nature'] == 'Receita') {
+                      totalReceitas += entry['value'];
+                    } else {
+                      totalDespesas += entry['value'];
+                    }
+                  }
+
+                  // Ordenar por data de vencimento (mais próximos primeiro)
+                  financialEntries.sort((a, b) {
+                    final dateA = a['dueDate'] as DateTime?;
+                    final dateB = b['dueDate'] as DateTime?;
+                    if (dateA == null && dateB == null) return 0;
+                    if (dateA == null) return 1;
+                    if (dateB == null) return -1;
+                    return dateA.compareTo(dateB);
+                  });
+
+                  // Limitar a 3
+                  financialEntries = financialEntries.take(3).toList();
+                }
+
+                final totalRecursos = totalReceitas - totalDespesas;
+
+                // Processar lista de compras
+                List<Map<String, dynamic>> shoppingItems = [];
+                if (shoppingSnapshot.hasData && shoppingSnapshot.data != null) {
+                  shoppingItems = shoppingSnapshot.data!.docs.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    return {
+                      'id': doc.id,
+                      'name': data['name'] ?? '',
+                      'category': data['category'] ?? 'Outros',
+                      'quantity': data['quantity'] ?? 1,
+                    };
+                  }).take(2).toList();
+                }
+
+                // Processar atividades (pelo menos 2) - pegar as mais recentes
+                final activitiesTasks = tasks.length >= 2 
+                    ? tasks.take(2).toList()
+                    : tasks.toList();
+
+                return AppCarousel(
+                  items: [
+                    // Primeira aba: Próximos Eventos
+                    CarouselCardData(
+                      title: 'Próximos Eventos',
+                      subTitle: 'Produtividade',
+                      text1: upcomingTasks.isNotEmpty
+                          ? '${upcomingTasks[0]['tipo']}: ${_formatTime(upcomingTasks[0]['date'])}'
+                          : 'Sem eventos',
+                      text2: upcomingTasks.length > 1
+                          ? '${upcomingTasks[1]['tipo']}: ${_formatTime(upcomingTasks[1]['date'])}'
+                          : '',
+                      leftIcon: Icons.event_outlined,
+                      color: Colors.white,
+                      component: MyPieChart(percent: productivityPercent.toDouble()),
+                    ),
+                    // Segunda aba: Finanças
+                    CarouselCardData(
+                      title: 'Finanças',
+                      subTitle: 'Recursos',
+                      text1: financialEntries.isNotEmpty
+                          ? '${financialEntries[0]['description']}'
+                          : 'Sem lançamentos',
+                      text2: financialEntries.length > 1
+                          ? (financialEntries.length > 2 
+                              ? '${financialEntries[1]['description']}, ${financialEntries[2]['description']}'
+                              : financialEntries[1]['description'])
+                          : '',
+                      leftIcon: Icons.account_balance_wallet_outlined,
+                      color: Colors.white,
+                      component: TextBox(
+                        text: 'R\$ ${totalRecursos.toStringAsFixed(2)}',
+                      ),
+                    ),
+                    // Terceira aba: Alimentação
+                    CarouselCardData(
+                      title: 'Alimentação',
+                      subTitle: 'Metas',
+                      text1: shoppingItems.isNotEmpty
+                          ? '${shoppingItems[0]['name']} (${shoppingItems[0]['quantity']})'
+                          : 'Sem itens',
+                      text2: shoppingItems.length > 1
+                          ? '${shoppingItems[1]['name']} (${shoppingItems[1]['quantity']})'
+                          : '',
+                      leftIcon: Icons.restaurant_menu_outlined,
+                      color: Colors.white,
+                      component: const TextBox(text: "-Kg"),
+                    ),
+                    // Última aba: Atividades
+                    CarouselCardData(
+                      title: 'Atividades',
+                      subTitle: activitiesTasks.isNotEmpty
+                          ? activitiesTasks[0]['duracao']
+                          : '',
+                      text1: activitiesTasks.isNotEmpty
+                          ? '${activitiesTasks[0]['tipo']}: ${_formatDate(activitiesTasks[0]['date'])}'
+                          : 'Sem atividades',
+                      text2: activitiesTasks.length > 1
+                          ? '${activitiesTasks[1]['tipo']}: ${activitiesTasks[1]['duracao']}'
+                          : '',
+                      leftIcon: Icons.fitness_center,
+                      color: Colors.white,
+                      component: TextBox(
+                        text: activitiesTasks.isNotEmpty
+                            ? activitiesTasks[0]['duracao']
+                            : '',
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  String _formatTime(DateTime date) {
+    return DateFormat('HH:mm').format(date);
+  }
+
+  String _formatDate(DateTime date) {
+    return DateFormat('dd/MM').format(date);
   }
 }
 
