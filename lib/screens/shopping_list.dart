@@ -1,18 +1,37 @@
 import 'package:flutter/material.dart';
 import '../widgets/menu_sanduwitch.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // Classe de modelo para um item da lista de compras
 class ShoppingItem {
-  // ... (Model class remains the same)
+  final String? documentId; // ID do documento no Firestore
   final String name;
   String category;
   int quantity;
 
   ShoppingItem({
+    this.documentId,
     required this.name,
     this.category = 'Outros', // Categoria padrão
     this.quantity = 1,
   });
+
+  // Método para converter o item em um Map para salvar no Firestore
+  Map<String, dynamic> toMap() {
+    return {'name': name, 'category': category, 'quantity': quantity};
+  }
+
+  // Factory constructor para criar um ShoppingItem a partir de um documento do Firestore
+  factory ShoppingItem.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return ShoppingItem(
+      documentId: doc.id,
+      name: data['name'] ?? '',
+      category: data['category'] ?? 'Outros',
+      quantity: data['quantity'] ?? 1,
+    );
+  }
 }
 
 class ShoppingListScreen extends StatefulWidget {
@@ -23,7 +42,6 @@ class ShoppingListScreen extends StatefulWidget {
 }
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
-  // ... (State properties remain the same)
   final List<ShoppingItem> _shoppingList = [];
   final List<String> _suggestions = [
     'proteínas',
@@ -33,6 +51,148 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   ];
   final TextEditingController _itemInputController = TextEditingController();
   final TextEditingController _quantityController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadShoppingList();
+  }
+
+  @override
+  void dispose() {
+    _itemInputController.dispose();
+    _quantityController.dispose();
+    super.dispose();
+  }
+
+  // Método para carregar a lista de compras do Firestore
+  Future<void> _loadShoppingList() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Usuário não autenticado. Faça login novamente.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('shopping_list')
+          .where('userId', isEqualTo: currentUser.uid)
+          .get();
+
+      if (mounted) {
+        setState(() {
+          _shoppingList.clear();
+          _shoppingList.addAll(
+            querySnapshot.docs.map((doc) => ShoppingItem.fromFirestore(doc)),
+          );
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao carregar lista: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  // Método para salvar um item no Firestore
+  Future<String?> _saveItemToFirestore(ShoppingItem item) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Usuário não autenticado. Faça login novamente.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return null;
+    }
+
+    try {
+      final itemData = item.toMap();
+      itemData['userId'] = currentUser.uid;
+
+      if (item.documentId != null) {
+        // Atualiza item existente (não altera o createdAt)
+        await FirebaseFirestore.instance
+            .collection('shopping_list')
+            .doc(item.documentId)
+            .update(itemData);
+        return item.documentId;
+      } else {
+        // Adiciona novo item e retorna o documentId criado
+        itemData['createdAt'] = FieldValue.serverTimestamp();
+        final docRef = await FirebaseFirestore.instance
+            .collection('shopping_list')
+            .add(itemData);
+        return docRef.id;
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao salvar item: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      // Recarrega a lista em caso de erro para manter sincronização
+      _loadShoppingList();
+      return null;
+    }
+  }
+
+  // Método para excluir um item do Firestore
+  Future<void> _deleteItemFromFirestore(String documentId) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Usuário não autenticado. Faça login novamente.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('shopping_list')
+          .doc(documentId)
+          .delete();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao excluir item: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      // Recarrega a lista em caso de erro para manter sincronização
+      _loadShoppingList();
+    }
+  }
 
   // Função para mostrar o modal de registro de item (Métodos não mudam)
   void _showItemRegistrationModal(String itemName) {
@@ -99,29 +259,62 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           ),
           actions: [
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 final int finalQuantity =
                     int.tryParse(_quantityController.text) ?? 1;
 
-                if (_shoppingList.any((item) => item.name == itemName)) {
-                  final existingItem = _shoppingList.firstWhere(
-                    (item) => item.name == itemName,
+                // Verifica se o item já existe na lista
+                final existingItemIndex = _shoppingList.indexWhere(
+                  (item) => item.name.toLowerCase() == itemName.toLowerCase(),
+                );
+
+                if (existingItemIndex != -1) {
+                  // Item já existe - atualiza a quantidade
+                  final existingItem = _shoppingList[existingItemIndex];
+                  final updatedItem = ShoppingItem(
+                    documentId: existingItem.documentId,
+                    name: existingItem.name,
+                    category: existingItem.category,
+                    quantity: existingItem.quantity + finalQuantity,
                   );
-                  setState(() {
-                    existingItem.quantity += finalQuantity;
-                  });
+
+                  // Salva a atualização no Firestore
+                  final savedId = await _saveItemToFirestore(updatedItem);
+
+                  if (mounted && savedId != null) {
+                    setState(() {
+                      _shoppingList[existingItemIndex] = updatedItem;
+                    });
+                  }
                 } else {
-                  setState(() {
-                    _shoppingList.add(
-                      ShoppingItem(
-                        name: itemName,
-                        quantity: finalQuantity,
-                        category: _suggestions.contains(itemName.toLowerCase())
-                            ? itemName
-                            : 'Outros',
-                      ),
+                  // Novo item - cria e salva no Firestore
+                  final newItem = ShoppingItem(
+                    name: itemName,
+                    quantity: finalQuantity,
+                    category: _suggestions.contains(itemName.toLowerCase())
+                        ? itemName
+                        : 'Outros',
+                  );
+
+                  // Salva no Firestore e obtém o documentId
+                  final savedId = await _saveItemToFirestore(newItem);
+
+                  if (mounted && savedId != null) {
+                    // Atualiza o item com o documentId retornado
+                    final savedItem = ShoppingItem(
+                      documentId: savedId,
+                      name: newItem.name,
+                      category: newItem.category,
+                      quantity: newItem.quantity,
                     );
-                  });
+
+                    setState(() {
+                      _shoppingList.add(savedItem);
+                    });
+                  } else if (mounted) {
+                    // Em caso de erro, recarrega a lista
+                    _loadShoppingList();
+                  }
                 }
 
                 _itemInputController.clear();
@@ -270,10 +463,20 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      final itemToDelete = _shoppingList[index];
+
+                      // Remove da lista local primeiro para feedback visual imediato
                       setState(() {
                         _shoppingList.removeAt(index);
                       });
+
+                      // Exclui do Firestore
+                      if (itemToDelete.documentId != null) {
+                        await _deleteItemFromFirestore(
+                          itemToDelete.documentId!,
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       shape: const CircleBorder(),
@@ -303,7 +506,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
       // Adaptando o AppBar para ser mais parecido com o de Home (sem título se não for essencial)
       appBar: AppBar(
-        title: const Text('🛒 Lista de Compras Inteligente'),
+        title: const Text('🛒 Lista de Compras'),
         // Usando as cores do tema principal para consistência
         backgroundColor:
             Theme.of(context).appBarTheme.backgroundColor ??
@@ -322,7 +525,9 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           const SizedBox(height: 24),
 
           Expanded(
-            child: _shoppingList.isEmpty
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _shoppingList.isEmpty
                 ? Center(
                     child: Text(
                       'A lista está vazia.\nAdicione seu primeiro item!',
