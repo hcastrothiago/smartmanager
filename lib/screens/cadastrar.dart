@@ -158,11 +158,15 @@ class _CadastroScreenState extends State<CadastroScreen> {
     setState(() => loading = true);
 
     try {
+      print('Iniciando criação de usuário...');
+
       // 2. CRIA USUÁRIO NO FIREBASE AUTH
       final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+
+      print('Usuário criado no Auth: ${cred.user?.uid}');
 
       // 3. SALVA DADOS NO FIRESTORE
       try {
@@ -178,6 +182,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
               'genero': genero,
               'createdAt': FieldValue.serverTimestamp(),
             });
+        print('Dados salvos no Firestore com sucesso');
       } catch (e) {
         // Se houver erro no Firestore mas o usuário foi criado no Auth,
         // ainda consideramos sucesso e redirecionamos
@@ -185,7 +190,9 @@ class _CadastroScreenState extends State<CadastroScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Usuário criado, mas houve erro ao salvar dados adicionais."),
+              content: Text(
+                "Usuário criado, mas houve erro ao salvar dados adicionais.",
+              ),
               backgroundColor: Colors.orange,
             ),
           );
@@ -193,41 +200,64 @@ class _CadastroScreenState extends State<CadastroScreen> {
       }
 
       // Verifica se o widget ainda está montado antes de continuar
-      if (!mounted) return;
-
-      // Feedback de sucesso
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Sucesso! Cadastro realizado. Redirecionando..."),
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 1),
-          ),
-        );
+      if (!mounted) {
+        print('Widget não está mais montado, abortando...');
+        return;
       }
 
+      print('Widget ainda montado, continuando...');
+
+      // Feedback de sucesso
+      print('Mostrando mensagem de sucesso...');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Sucesso! Cadastro realizado."),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 1),
+        ),
+      );
+
       // Pequena pausa para o usuário ver o feedback
+      print('Aguardando 1 segundo...');
       await Future.delayed(const Duration(milliseconds: 1000));
 
       // Verifica novamente se o widget ainda está montado antes de navegar
-      if (!mounted) return;
+      if (!mounted) {
+        print('Widget não está mais montado após delay, abortando...');
+        return;
+      }
+
+      print('Desabilitando loading...');
+      // Desabilita o loading e navega imediatamente
+      // Usa o mesmo padrão que funciona no login.dart
+      setState(() => loading = false);
+
+      // Pequeno delay para garantir que o setState foi processado
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      // Verifica novamente antes de navegar
+      if (!mounted) {
+        print('Widget não está mais montado após setState, abortando...');
+        return;
+      }
 
       // REDIRECIONAMENTO PARA A TELA DE LOGIN
-      // Garante que o redirecionamento aconteça mesmo se houver algum problema
-      if (mounted) {
-        // Desabilita o loading antes de navegar
-        setState(() => loading = false);
-        
-        // Pequeno delay para garantir que o estado foi atualizado
-        await Future.delayed(const Duration(milliseconds: 100));
-        
-        if (!mounted) return;
-        
-        // Navega para a tela de login
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          '/login',
-          (route) => false,
-        );
+      print('Iniciando redirecionamento para /login...');
+      try {
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil('/login', (route) => false);
+        print('✅ Redirecionamento executado com sucesso!');
+      } catch (e, stackTrace) {
+        print('❌ ERRO ao redirecionar: $e');
+        print('Stack trace: $stackTrace');
+        // Tenta abordagem alternativa
+        try {
+          Navigator.of(context).pushReplacementNamed('/login');
+          print('✅ Redirecionamento alternativo executado!');
+        } catch (e2) {
+          print('❌ Erro no redirecionamento alternativo: $e2');
+        }
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {

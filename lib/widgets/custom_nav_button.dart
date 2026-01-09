@@ -6,7 +6,7 @@ class CustomNavButton extends StatelessWidget {
   final Color borderColor;
   final Color backgroundColor;
   final IconData icon;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const CustomNavButton({
     super.key,
@@ -15,7 +15,7 @@ class CustomNavButton extends StatelessWidget {
     required this.borderColor,
     required this.backgroundColor,
     required this.icon,
-    required this.onPressed,
+    this.onPressed,
   });
 
   @override

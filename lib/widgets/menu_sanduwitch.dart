@@ -68,7 +68,7 @@ class SandwichMenu extends StatelessWidget {
                     Icons.sports_gymnastics_outlined,
                     color: itemIconColor,
                   ),
-                  title: const Text('Treinos diários'),
+                  title: const Text('Tarefas'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/gym_workouts_empty');
