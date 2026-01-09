@@ -1,17 +1,16 @@
-import 'dart:collection';
 import 'package:flutter/material.dart';
-
-typedef MenuEntry = DropdownMenuEntry<String>;
 
 class DropdownList extends StatefulWidget {
   final List<String> values;
   final String? initialValue;
+  final String? hint; // Novo campo para o texto de instrução
   final void Function(String?)? onChanged;
 
   const DropdownList({
     super.key,
     required this.values,
     this.initialValue,
+    this.hint, // Adicionado ao construtor
     this.onChanged,
   });
 
@@ -20,46 +19,43 @@ class DropdownList extends StatefulWidget {
 }
 
 class _DropdownListState extends State<DropdownList> {
-  late String selected;
+  String? selected;
 
   @override
   void initState() {
     super.initState();
-    selected = widget.initialValue ?? widget.values.first;
+    selected = widget.initialValue;
   }
 
   @override
   Widget build(BuildContext context) {
-    final menuEntries = UnmodifiableListView<MenuEntry>(
-      widget.values.map((v) => MenuEntry(value: v, label: v)),
-    );
-
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: DropdownMenu<String>(
-        width: MediaQuery.of(context).size.width - (16 * 2),
-        initialSelection: selected,
-        dropdownMenuEntries: menuEntries,
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: const BorderSide(color: Colors.white, width: 1.0),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: const BorderSide(color: Colors.white, width: 1.0),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: const BorderSide(color: Colors.white, width: 1.0),
-          ),
-          filled: true,
-          fillColor: Colors.white.withOpacity(0.1),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: DropdownButtonFormField<String>(
+        value: selected,
+        hint: Text(
+          widget.hint ?? "Selecione",
+          style: TextStyle(color: Colors.black, fontSize: 16),
         ),
-        onSelected: (value) {
-          if (value == null) return;
-          setState(() => selected = value);
-          widget.onChanged?.call(value);
+        dropdownColor: Colors.white,
+        style: const TextStyle(color: Colors.black, fontSize: 16),
+        iconEnabledColor: Colors.black,
+        decoration: const InputDecoration(
+          isDense: true,
+          contentPadding: EdgeInsets.symmetric(vertical: 8),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.white, width: 1.0),
+          ),
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.black, width: 1.0),
+          ),
+        ),
+        items: widget.values.map((String value) {
+          return DropdownMenuItem<String>(value: value, child: Text(value));
+        }).toList(),
+        onChanged: (val) {
+          setState(() => selected = val);
+          widget.onChanged?.call(val);
         },
       ),
     );

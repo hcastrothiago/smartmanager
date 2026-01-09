@@ -36,14 +36,14 @@ class SandwichMenu extends StatelessWidget {
             child: ListView(
               padding: EdgeInsets.zero,
               children: <Widget>[
-                ListTile(
+                /* ListTile(
                   leading: Icon(Icons.person_outline, color: itemIconColor),
                   title: const Text('Cadastrar'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/cadastrar');
                   },
-                ),
+                ), */
                 ListTile(
                   leading: Icon(Icons.home_outlined, color: itemIconColor),
                   title: const Text('Home'),
@@ -91,9 +91,7 @@ class SandwichMenu extends StatelessWidget {
                   title: const Text('Ajuda'),
                   onTap: () {
                     Navigator.pop(context);
-                    debugPrint(
-                      'Ajuda solicitada. Implementar módulo de suporte.',
-                    );
+                    Navigator.pushNamed(context, '/help');
                   },
                 ),
               ],

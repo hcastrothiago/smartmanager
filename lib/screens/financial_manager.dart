@@ -166,8 +166,8 @@ class _FinancialManagerState extends State<FinancialManager> {
 
   @override
   Widget build(BuildContext context) {
-    // DefaultScreen já injeta o SandwichMenu internamente conforme seu código original
     return DefaultScreen(
+      title: "Adicionar Lançamento",
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -181,6 +181,7 @@ class _FinancialManagerState extends State<FinancialManager> {
                     'Passivo',
                   ], _typeController),
                 ),
+
                 Expanded(
                   child: _buildDropdown([
                     'Selecione...',

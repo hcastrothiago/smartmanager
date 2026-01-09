@@ -9,6 +9,7 @@ import 'screens/login.dart';
 import 'screens/first_run_app.dart';
 import 'screens/gym_workouts.dart';
 import 'screens/gym_workouts_empty.dart';
+import 'screens/help.dart';
 // configuração do firebase
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
         '/tela_padrao': (_) => DefaultScreen(),
         '/first_run_app': (_) => FirstRunApp(),
         '/dashboard_ui': (_) => DashboardUI(),
+        '/help': (_) => HelpScreen(),
         //'/cadastrofinalizado': (_) => EndForm(),
       },
     );

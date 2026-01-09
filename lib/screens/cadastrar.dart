@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 // Importações dos Widgets Padronizados
 import 'package:smartmanager/widgets/default_screen.dart';
 import 'package:smartmanager/widgets/input_form.dart';
+import 'package:smartmanager/widgets/button.dart';
+import 'package:smartmanager/widgets/dropdown_list.dart';
 
 class CadastroScreen extends StatefulWidget {
   const CadastroScreen({super.key});
@@ -29,7 +31,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
 
   @override
   void dispose() {
-    // Prática recomendada: sempre limpar os controllers
     userController.dispose();
     firstNameController.dispose();
     lastNameController.dispose();
@@ -41,7 +42,6 @@ class _CadastroScreenState extends State<CadastroScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // DefaultScreen já injeta o gradiente roxo e a AppBar
     return DefaultScreen(
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -50,15 +50,14 @@ class _CadastroScreenState extends State<CadastroScreen> {
           child: Column(
             children: [
               const SizedBox(height: 20),
-              Image(
-                image: const AssetImage('assets/images/user_profile.png'),
+              const Image(
+                image: AssetImage('assets/images/user_profile.png'),
                 width: 120,
                 height: 120,
                 fit: BoxFit.cover,
               ),
               const SizedBox(height: 10),
 
-              // Uso do widget InputForm para manter a identidade
               InputForm(
                 placeholder: "Nome de Usuário",
                 controller: userController,
@@ -83,9 +82,17 @@ class _CadastroScreenState extends State<CadastroScreen> {
 
               InputForm(placeholder: "E-mail", controller: emailController),
 
+              // ALINHAMENTO CORRIGIDO: Removido o Padding redundante
               Row(
                 children: [
-                  Expanded(child: _buildGenderDropdown()),
+                  Expanded(
+                    child: DropdownList(
+                      values: const ["Masculino", "Feminino", "Outro"],
+                      initialValue: genero,
+                      hint: "Selecione o Gênero",
+                      onChanged: (val) => setState(() => genero = val),
+                    ),
+                  ),
                   Expanded(
                     child: InputForm(
                       placeholder: "Idade",
@@ -99,63 +106,17 @@ class _CadastroScreenState extends State<CadastroScreen> {
 
               const SizedBox(height: 40),
 
-              // Botão Salvar Estilizado
+              // BOTÃO REFATORADO: Limpeza de paddings aninhados
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 55,
-                  child: ElevatedButton(
-                    onPressed: loading ? null : _cadastrarUsuario,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.2),
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white, width: 1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    child: loading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            'FINALIZAR CADASTRO',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                  ),
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: loading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : Button(label: 'SALVAR', onPressed: _cadastrarUsuario),
               ),
               const SizedBox(height: 30),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  // Dropdown adaptado para o visual transparente/branco
-  Widget _buildGenderDropdown() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: DropdownButtonFormField<String>(
-        value: genero,
-        dropdownColor: const Color(0xFF8250C3), // Cor do gradiente inicial
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          hintText: "Gênero",
-          hintStyle: TextStyle(color: Colors.grey.shade400),
-          enabledBorder: const UnderlineInputBorder(
-            borderSide: BorderSide(color: Colors.white),
-          ),
-        ),
-        items: [
-          "Masculino",
-          "Feminino",
-          "Outro",
-        ].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
-        onChanged: (val) => setState(() => genero = val),
       ),
     );
   }

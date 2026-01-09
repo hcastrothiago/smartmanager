@@ -15,7 +15,7 @@ class InputForm extends StatelessWidget {
         style: const TextStyle(color: Colors.black),
         decoration: InputDecoration(
           hintText: placeholder,
-          hintStyle: TextStyle(color: const Color.fromARGB(255, 255, 255, 255)),
+          hintStyle: TextStyle(color: Colors.black),
 
           enabledBorder: const UnderlineInputBorder(
             borderSide: BorderSide(color: Colors.white, width: 1.0),
