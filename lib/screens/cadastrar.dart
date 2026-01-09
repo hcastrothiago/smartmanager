@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CadastroScreen extends StatefulWidget {
   const CadastroScreen({super.key});
@@ -8,7 +10,10 @@ class CadastroScreen extends StatefulWidget {
 }
 
 class _CadastroScreenState extends State<CadastroScreen> {
-  // CONTROLLERS
+  // 🔹 CHAVE DO FORMULÁRIO (necessária para validação)
+  final _formKey = GlobalKey<FormState>();
+
+  // 🔹 CONTROLLERS
   final userController = TextEditingController();
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
@@ -17,6 +22,7 @@ class _CadastroScreenState extends State<CadastroScreen> {
   final passwordController = TextEditingController();
 
   String? genero;
+  bool loading = false; // 🔹 controla loading do botão
 
   @override
   Widget build(BuildContext context) {
@@ -27,100 +33,94 @@ class _CadastroScreenState extends State<CadastroScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // TOPO ROXO
-              Container(
-                width: width,
-                height: height * 0.25,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF8250C3),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(25),
-                    bottomRight: Radius.circular(25),
+          child: Form(
+            // 🔹 FORM envolve todos os campos
+            key: _formKey,
+            child: Column(
+              children: [
+                // TOPO
+                Container(
+                  width: width,
+                  height: height * 0.25,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF8250C3),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25),
+                    ),
                   ),
-                ),
-                child: const Center(
-                  child: Text(
-                    "Cadastro",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.w700,
+                  child: const Center(
+                    child: Text(
+                      "Cadastro",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 40),
+                const SizedBox(height: 40),
 
-              _campo("Nome de Usuário", userController),
+                _campo("Nome de Usuário", userController),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: width * 0.40,
-                    child: _campo("Primeiro nome", firstNameController),
-                  ),
-                  const SizedBox(width: 20),
-                  SizedBox(
-                    width: width * 0.40,
-                    child: _campo("Sobrenome", lastNameController),
-                  ),
-                ],
-              ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: width * 0.40,
+                      child: _campo("Primeiro nome", firstNameController),
+                    ),
+                    const SizedBox(width: 20),
+                    SizedBox(
+                      width: width * 0.40,
+                      child: _campo("Sobrenome", lastNameController),
+                    ),
+                  ],
+                ),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-              _campo("E-Mail", emailController),
+                _campo("E-mail", emailController, isEmail: true),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(width: width * 0.40, child: _dropdown()),
-                  const SizedBox(width: 20),
-                  SizedBox(
-                    width: width * 0.40,
-                    child: _campo("Idade", ageController),
-                  ),
-                ],
-              ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(width: width * 0.40, child: _dropdown()),
+                    const SizedBox(width: 20),
+                    SizedBox(
+                      width: width * 0.40,
+                      child: _campo("Idade", ageController, isNumber: true),
+                    ),
+                  ],
+                ),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-              _campo("Senha", passwordController),
+                _campo("Senha", passwordController, isPassword: true),
 
-              const SizedBox(height: 40),
+                const SizedBox(height: 40),
 
-              // BOTÃO SALVAR -
-              Center(
-                child: SizedBox(
+                // 🔹 BOTÃO SALVAR
+                SizedBox(
                   width: 200,
                   height: 50,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Adicionar lógica de cadastro aqui
-                      // print("Botão salvar pressionado");
-                    },
+                    onPressed: loading ? null : _cadastrarUsuario,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF8B4FF0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/login');
-                          },
-                          child: const Text(
+                    child: loading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
                             'SALVAR',
                             style: TextStyle(
                               color: Colors.white,
@@ -128,57 +128,141 @@ class _CadastroScreenState extends State<CadastroScreen> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFB39DDB),
-                            shape: BoxShape.circle,
-                          ),
-                          padding: const EdgeInsets.all(6),
-                          child: const Icon(
-                            Icons.check,
-                            color: Colors.white,
-                            size: 18,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 30),
-            ],
+                const SizedBox(height: 30),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  //fim salvar
-  // CAMPO PADRÃO
-  Widget _campo(String hint, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: Colors.grey.shade400),
+  // 🔹 FUNÇÃO DE CADASTRO NO FIREBASE
+  Future<void> _cadastrarUsuario() async {
+    // 1. Validação inicial
+    if (!_formKey.currentState!.validate()) return;
+
+    if (genero == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Selecione o gênero"),
+          backgroundColor: Colors.orange,
         ),
-        child: TextField(
-          controller: controller,
-          decoration: InputDecoration(hintText: hint, border: InputBorder.none),
+      );
+      return;
+    }
+
+    setState(() => loading = true);
+
+    try {
+      // 2. CRIA USUÁRIO NO FIREBASE AUTH
+      final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      // 3. SALVA DADOS NO FIRESTORE
+      // Local exato onde a operação de banco termina
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(cred.user!.uid)
+          .set({
+            'username': userController.text.trim(),
+            'firstName': firstNameController.text.trim(),
+            'lastName': lastNameController.text.trim(),
+            'email': emailController.text.trim(),
+            'idade': int.tryParse(ageController.text) ?? 0,
+            'genero': genero,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+
+      // --- DAQUI PARA BAIXO É A MUDANÇA ---
+
+      if (!mounted)
+        return; // Verifica se o usuário não fechou a tela durante o processo
+
+      // Feedback de sucesso
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Sucesso! Cadastro realizado."),
+          backgroundColor: Colors.green,
         ),
+      );
+
+      // Pequena pausa para o usuário ver o feedback
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      if (!mounted) return;
+
+      // REDIRECIONAMENTO ROBUSTO
+      // Limpa a pilha e vai para o login (ou home, como discutimos)
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message ?? 'Erro no cadastro'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  // Helper para mensagens (DRY - Don't Repeat Yourself)
+  void _mostrarMensagem(String texto, {bool erro = false}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(texto),
+        backgroundColor: erro ? Colors.redAccent : Colors.green,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  // DROPDOWN GÊNERO
+  // 🔹 CAMPO PADRÃO (TextFormField + validação)
+  Widget _campo(
+    String hint,
+    TextEditingController controller, {
+    bool isPassword = false,
+    bool isEmail = false,
+    bool isNumber = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: TextFormField(
+        controller: controller,
+        obscureText: isPassword, // 🔹 senha protegida
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        decoration: InputDecoration(
+          hintText: hint,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Campo obrigatório';
+          }
+          if (isEmail && !value.contains('@')) {
+            return 'E-mail inválido';
+          }
+          if (isPassword && value.length < 6) {
+            return 'Mínimo 6 caracteres';
+          }
+          return null;
+        },
+      ),
+    );
+  }
+
+  // 🔹 DROPDOWN GÊNERO
   Widget _dropdown() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: Colors.grey.shade400),
@@ -191,12 +275,11 @@ class _CadastroScreenState extends State<CadastroScreen> {
           items: const [
             DropdownMenuItem(value: "Masculino", child: Text("Masculino")),
             DropdownMenuItem(value: "Feminino", child: Text("Feminino")),
-            DropdownMenuItem(value: "Gambiarra", child: Text("Gambiarra")),
+            DropdownMenuItem(value: "Outro", child: Text("Outro")),
           ],
           onChanged: (value) {
             setState(() => genero = value);
           },
-          icon: const Icon(Icons.arrow_drop_down),
         ),
       ),
     );
