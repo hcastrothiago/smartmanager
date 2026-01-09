@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Importações dos Widgets Padronizados
+import 'package:smartmanager/widgets/default_screen.dart';
+import 'package:smartmanager/widgets/input_form.dart';
+
 class CadastroScreen extends StatefulWidget {
   const CadastroScreen({super.key});
 
@@ -10,10 +14,9 @@ class CadastroScreen extends StatefulWidget {
 }
 
 class _CadastroScreenState extends State<CadastroScreen> {
-  // 🔹 CHAVE DO FORMULÁRIO (necessária para validação)
   final _formKey = GlobalKey<FormState>();
 
-  // 🔹 CONTROLLERS
+  // CONTROLLERS
   final userController = TextEditingController();
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
@@ -22,246 +25,171 @@ class _CadastroScreenState extends State<CadastroScreen> {
   final passwordController = TextEditingController();
 
   String? genero;
-  bool loading = false; // 🔹 controla loading do botão
+  bool loading = false;
+
+  @override
+  void dispose() {
+    // Prática recomendada: sempre limpar os controllers
+    userController.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    ageController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
+    // DefaultScreen já injeta o gradiente roxo e a AppBar
+    return DefaultScreen(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              Image(
+                image: const AssetImage('assets/images/user_profile.png'),
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
+              ),
+              const SizedBox(height: 10),
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Form(
-            // 🔹 FORM envolve todos os campos
-            key: _formKey,
-            child: Column(
-              children: [
-                // TOPO
-                Container(
-                  width: width,
-                  height: height * 0.25,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF8250C3),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(25),
-                      bottomRight: Radius.circular(25),
+              // Uso do widget InputForm para manter a identidade
+              InputForm(
+                placeholder: "Nome de Usuário",
+                controller: userController,
+              ),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: InputForm(
+                      placeholder: "Primeiro Nome",
+                      controller: firstNameController,
                     ),
                   ),
-                  child: const Center(
-                    child: Text(
-                      "Cadastro",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.w700,
-                      ),
+                  Expanded(
+                    child: InputForm(
+                      placeholder: "Sobrenome",
+                      controller: lastNameController,
                     ),
                   ),
-                ),
+                ],
+              ),
 
-                const SizedBox(height: 40),
+              InputForm(placeholder: "E-mail", controller: emailController),
 
-                _campo("Nome de Usuário", userController),
-
-                const SizedBox(height: 25),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: width * 0.40,
-                      child: _campo("Primeiro nome", firstNameController),
+              Row(
+                children: [
+                  Expanded(child: _buildGenderDropdown()),
+                  Expanded(
+                    child: InputForm(
+                      placeholder: "Idade",
+                      controller: ageController,
                     ),
-                    const SizedBox(width: 20),
-                    SizedBox(
-                      width: width * 0.40,
-                      child: _campo("Sobrenome", lastNameController),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
 
-                const SizedBox(height: 25),
+              InputForm(placeholder: "Senha", controller: passwordController),
 
-                _campo("E-mail", emailController, isEmail: true),
+              const SizedBox(height: 40),
 
-                const SizedBox(height: 25),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(width: width * 0.40, child: _dropdown()),
-                    const SizedBox(width: 20),
-                    SizedBox(
-                      width: width * 0.40,
-                      child: _campo("Idade", ageController, isNumber: true),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 25),
-
-                _campo("Senha", passwordController, isPassword: true),
-
-                const SizedBox(height: 40),
-
-                // 🔹 BOTÃO SALVAR
-                SizedBox(
-                  width: 200,
-                  height: 50,
+              // Botão Salvar Estilizado
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 55,
                   child: ElevatedButton(
                     onPressed: loading ? null : _cadastrarUsuario,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF8B4FF0),
+                      backgroundColor: Colors.white.withOpacity(0.2),
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white, width: 1),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(15),
                       ),
                     ),
                     child: loading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
-                            'SALVAR',
+                            'FINALIZAR CADASTRO',
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
                               fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
                           ),
                   ),
                 ),
-
-                const SizedBox(height: 30),
-              ],
-            ),
+              ),
+              const SizedBox(height: 30),
+            ],
           ),
         ),
       ),
     );
   }
 
-  // 🔹 FUNÇÃO DE CADASTRO NO FIREBASE
-  Future<void> _cadastrarUsuario() async {
-    // 1. Validação inicial
-    if (!_formKey.currentState!.validate()) return;
-
-    if (genero == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Selecione o gênero"),
-          backgroundColor: Colors.orange,
+  // Dropdown adaptado para o visual transparente/branco
+  Widget _buildGenderDropdown() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: DropdownButtonFormField<String>(
+        value: genero,
+        dropdownColor: const Color(0xFF8250C3), // Cor do gradiente inicial
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          hintText: "Gênero",
+          hintStyle: TextStyle(color: Colors.grey.shade400),
+          enabledBorder: const UnderlineInputBorder(
+            borderSide: BorderSide(color: Colors.white),
+          ),
         ),
-      );
-      return;
-    }
+        items: [
+          "Masculino",
+          "Feminino",
+          "Outro",
+        ].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+        onChanged: (val) => setState(() => genero = val),
+      ),
+    );
+  }
 
+  Future<void> _cadastrarUsuario() async {
+    if (!_formKey.currentState!.validate()) return;
     setState(() => loading = true);
 
     try {
-      print('Iniciando criação de usuário...');
-
-      // 2. CRIA USUÁRIO NO FIREBASE AUTH
       final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
 
-      print('Usuário criado no Auth: ${cred.user?.uid}');
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(cred.user!.uid)
+          .set({
+            'username': userController.text.trim(),
+            'firstName': firstNameController.text.trim(),
+            'lastName': lastNameController.text.trim(),
+            'email': emailController.text.trim(),
+            'idade': int.tryParse(ageController.text) ?? 0,
+            'genero': genero,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
 
-      // 3. SALVA DADOS NO FIRESTORE
-      try {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(cred.user!.uid)
-            .set({
-              'username': userController.text.trim(),
-              'firstName': firstNameController.text.trim(),
-              'lastName': lastNameController.text.trim(),
-              'email': emailController.text.trim(),
-              'idade': int.tryParse(ageController.text) ?? 0,
-              'genero': genero,
-              'createdAt': FieldValue.serverTimestamp(),
-            });
-        print('Dados salvos no Firestore com sucesso');
-      } catch (e) {
-        // Se houver erro no Firestore mas o usuário foi criado no Auth,
-        // ainda consideramos sucesso e redirecionamos
-        print('Erro ao salvar no Firestore: $e');
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                "Usuário criado, mas houve erro ao salvar dados adicionais.",
-              ),
-              backgroundColor: Colors.orange,
-            ),
-          );
-        }
-      }
-
-      // Verifica se o widget ainda está montado antes de continuar
-      if (!mounted) {
-        print('Widget não está mais montado, abortando...');
-        return;
-      }
-
-      print('Widget ainda montado, continuando...');
-
-      // Feedback de sucesso
-      print('Mostrando mensagem de sucesso...');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Sucesso! Cadastro realizado."),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 1),
-        ),
-      );
-
-      // Pequena pausa para o usuário ver o feedback
-      print('Aguardando 1 segundo...');
-      await Future.delayed(const Duration(milliseconds: 1000));
-
-      // Verifica novamente se o widget ainda está montado antes de navegar
-      if (!mounted) {
-        print('Widget não está mais montado após delay, abortando...');
-        return;
-      }
-
-      print('Desabilitando loading...');
-      // Desabilita o loading e navega imediatamente
-      // Usa o mesmo padrão que funciona no login.dart
-      setState(() => loading = false);
-
-      // Pequeno delay para garantir que o setState foi processado
-      await Future.delayed(const Duration(milliseconds: 50));
-
-      // Verifica novamente antes de navegar
-      if (!mounted) {
-        print('Widget não está mais montado após setState, abortando...');
-        return;
-      }
-
-      // REDIRECIONAMENTO PARA A TELA DE LOGIN
-      print('Iniciando redirecionamento para /login...');
-      try {
+      if (mounted) {
         Navigator.of(
           context,
         ).pushNamedAndRemoveUntil('/login', (route) => false);
-        print('✅ Redirecionamento executado com sucesso!');
-      } catch (e, stackTrace) {
-        print('❌ ERRO ao redirecionar: $e');
-        print('Stack trace: $stackTrace');
-        // Tenta abordagem alternativa
-        try {
-          Navigator.of(context).pushReplacementNamed('/login');
-          print('✅ Redirecionamento alternativo executado!');
-        } catch (e2) {
-          print('❌ Erro no redirecionamento alternativo: $e2');
-        }
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
-        setState(() => loading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.message ?? 'Erro no cadastro'),
@@ -269,89 +197,8 @@ class _CadastroScreenState extends State<CadastroScreen> {
           ),
         );
       }
-    } catch (e) {
-      // Captura qualquer outra exceção não esperada
-      print('Erro inesperado: $e');
-      if (mounted) {
-        setState(() => loading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+    } finally {
+      if (mounted) setState(() => loading = false);
     }
-  }
-
-  // Helper para mensagens (DRY - Don't Repeat Yourself)
-  void _mostrarMensagem(String texto, {bool erro = false}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(texto),
-        backgroundColor: erro ? Colors.redAccent : Colors.green,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  // 🔹 CAMPO PADRÃO (TextFormField + validação)
-  Widget _campo(
-    String hint,
-    TextEditingController controller, {
-    bool isPassword = false,
-    bool isEmail = false,
-    bool isNumber = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: TextFormField(
-        controller: controller,
-        obscureText: isPassword, // 🔹 senha protegida
-        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-        decoration: InputDecoration(
-          hintText: hint,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
-        ),
-        validator: (value) {
-          if (value == null || value.isEmpty) {
-            return 'Campo obrigatório';
-          }
-          if (isEmail && !value.contains('@')) {
-            return 'E-mail inválido';
-          }
-          if (isPassword && value.length < 6) {
-            return 'Mínimo 6 caracteres';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  // 🔹 DROPDOWN GÊNERO
-  Widget _dropdown() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.grey.shade400),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          isExpanded: true,
-          value: genero,
-          hint: const Text("Gênero"),
-          items: const [
-            DropdownMenuItem(value: "Masculino", child: Text("Masculino")),
-            DropdownMenuItem(value: "Feminino", child: Text("Feminino")),
-            DropdownMenuItem(value: "Outro", child: Text("Outro")),
-          ],
-          onChanged: (value) {
-            setState(() => genero = value);
-          },
-        ),
-      ),
-    );
   }
 }
