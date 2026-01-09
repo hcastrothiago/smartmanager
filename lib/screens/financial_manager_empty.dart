@@ -15,6 +15,7 @@ class FinancialManagerEmpty extends StatelessWidget {
     final currentUser = FirebaseAuth.instance.currentUser;
 
     return DefaultScreen(
+      title: "Gerenciador Financeiro",
       child: StreamBuilder<QuerySnapshot>(
         stream: currentUser != null
             ? FirebaseFirestore.instance

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class InformationCard extends StatelessWidget {
   final String title;
   final String value;
+  final String? description; // Novo campo para o conteúdo da dieta
   final Color valueColor;
   final String? subTitle;
   final List<String> badgeLabels;
@@ -13,6 +14,7 @@ class InformationCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.value,
+    this.description, // Injetado aqui
     required this.onDelete,
     this.valueColor = Colors.black87,
     this.subTitle,
@@ -23,7 +25,10 @@ class InformationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 8.0,
+      ), // Ajustado para a width padrão
       child: Card(
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -34,7 +39,6 @@ class InformationCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Título com limite de largura para não bater na lixeira
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.65,
                     child: Text(
@@ -49,7 +53,6 @@ class InformationCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  // Badges dinâmicas
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,
@@ -78,13 +81,27 @@ class InformationCard extends StatelessWidget {
                     }),
                   ),
                   const SizedBox(height: 16),
+
+                  // ONDE ERA "VER DETALHES", AGORA É O CONTEÚDO REAL
+                  if (description != null) ...[
+                    Text(
+                      description!,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[800],
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         value,
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: valueColor,
                         ),

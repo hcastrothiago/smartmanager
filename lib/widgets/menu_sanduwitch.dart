@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:smartmanager/services/export_service.dart';
 
 class SandwichMenu extends StatelessWidget {
   const SandwichMenu({super.key});
@@ -83,6 +84,21 @@ class SandwichMenu extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/financial_manager_empty');
+                  },
+                ),
+                const Divider(),
+                ListTile(
+                  leading: const Icon(
+                    Icons.picture_as_pdf,
+                    color: Colors.black,
+                  ),
+                  title: const Text(
+                    "Exportar Dados",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    ExportService.exportToPdf(context); // Inicia a exportação
                   },
                 ),
                 const Divider(),

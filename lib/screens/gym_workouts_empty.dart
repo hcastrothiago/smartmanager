@@ -13,6 +13,7 @@ class GymWorkoutsEmpty extends StatelessWidget {
     final currentUser = FirebaseAuth.instance.currentUser;
 
     return DefaultScreen(
+      title: "Minhas Tarefas",
       child: StreamBuilder<QuerySnapshot>(
         stream: currentUser != null
             ? FirebaseFirestore.instance

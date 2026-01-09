@@ -14,6 +14,7 @@ class ShoppingListEmpty extends StatelessWidget {
     final currentUser = FirebaseAuth.instance.currentUser;
 
     return DefaultScreen(
+      title: "Minhas Dietas",
       child: StreamBuilder<QuerySnapshot>(
         stream: currentUser != null
             ? FirebaseFirestore.instance
@@ -28,7 +29,6 @@ class ShoppingListEmpty extends StatelessWidget {
             );
           }
 
-          // Lógica de Tela Vazia com imagem carrinho_vazio.png
           if (!snapshot.hasData ||
               snapshot.data!.docs.isEmpty ||
               currentUser == null) {
@@ -46,7 +46,9 @@ class ShoppingListEmpty extends StatelessWidget {
 
                   return InformationCard(
                     title: data['tipoDieta'] ?? 'Minha Dieta',
-                    value: 'Ver Detalhes', // Texto fixo para o valor
+                    description:
+                        data['dieta'], // EXIBE O TEXTO DA TEXT AREA AQUI
+                    value: 'Status: Ativa',
                     valueColor: Colors.blueAccent,
                     subTitle: data['prazo'] != null
                         ? 'Até: ${DateFormat('dd/MM/yyyy').format(DateTime.parse(data['prazo']))}'

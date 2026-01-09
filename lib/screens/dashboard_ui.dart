@@ -162,10 +162,9 @@ class _CarouselBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     final currentUser = FirebaseAuth.instance.currentUser;
 
-    if (currentUser == null) {
-      return const SizedBox.shrink();
-    }
+    if (currentUser == null) return const SizedBox.shrink();
 
+    // Sincronização em tempo real com as 3 coleções principais
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('gym_workouts')
@@ -180,181 +179,108 @@ class _CarouselBuilder extends StatelessWidget {
           builder: (context, financialSnapshot) {
             return StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
-                  .collection('shopping_list')
+                  .collection(
+                    'shopping_lists',
+                  ) // Nome corrigido conforme seu banco
                   .where('userId', isEqualTo: currentUser.uid)
                   .snapshots(),
               builder: (context, shoppingSnapshot) {
-                // Processar tarefas para eventos e atividades
-                List<Map<String, dynamic>> tasks = [];
-                if (tasksSnapshot.hasData && tasksSnapshot.data != null) {
-                  tasks = tasksSnapshot.data!.docs.map((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-                    DateTime date = DateTime.now();
-                    if (data['createdAt'] != null) {
-                      final timestamp = data['createdAt'] as Timestamp;
-                      date = timestamp.toDate();
-                    }
-                    return {
-                      'id': doc.id,
-                      'tipo': data['tipo']?.toString() ?? 'Atividade',
-                      'frequencia': data['frequencia']?.toString() ?? '',
-                      'duracao': data['duracao']?.toString() ?? 'Não especificado',
-                      'calorias': data['calorias']?.toString() ?? '0',
-                      'date': date,
-                    };
-                  }).toList();
-                  
-                  // Ordenar por data
-                  tasks.sort((a, b) => (a['date'] as DateTime).compareTo(b['date'] as DateTime));
-                }
-
-                // Filtrar eventos futuros (próximos eventos) e passados
-                final now = DateTime.now();
-                final upcomingTasks = tasks.where((task) {
-                  return (task['date'] as DateTime).isAfter(now);
-                }).take(2).toList();
-                
-                final pastTasks = tasks.where((task) {
-                  return (task['date'] as DateTime).isBefore(now);
-                }).toList();
-
-                // Calcular produtividade para o gráfico
-                final totalTasks = tasks.length;
-                final completedTasks = pastTasks.length;
-                final productivityPercent = totalTasks > 0 
-                    ? (completedTasks / totalTasks * 100).round()
-                    : 0;
-
-                // Processar lançamentos financeiros
-                List<Map<String, dynamic>> financialEntries = [];
+                // --- PROCESSAMENTO DE FINANÇAS ---
                 double totalReceitas = 0.0;
                 double totalDespesas = 0.0;
-                
-                if (financialSnapshot.hasData && financialSnapshot.data != null) {
-                  financialEntries = financialSnapshot.data!.docs.map((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-                    return {
-                      'id': doc.id,
-                      'description': data['description'] ?? '',
-                      'value': (data['value'] ?? 0.0).toDouble(),
-                      'nature': data['nature'] ?? 'Despesa',
-                      'dueDate': data['dueDate'] != null 
-                          ? DateTime.parse(data['dueDate'])
-                          : null,
-                    };
-                  }).toList();
+                List<String> lastFinDescriptions = [];
 
-                  // Calcular totais
-                  for (var entry in financialEntries) {
-                    if (entry['nature'] == 'Receita') {
-                      totalReceitas += entry['value'];
+                if (financialSnapshot.hasData) {
+                  final finDocs = financialSnapshot.data!.docs;
+                  for (var doc in finDocs) {
+                    final d = doc.data() as Map<String, dynamic>;
+                    double val = (d['value'] ?? 0.0).toDouble();
+                    if (d['nature'] == 'Receita') {
+                      totalReceitas += val;
                     } else {
-                      totalDespesas += entry['value'];
+                      totalDespesas += val;
                     }
                   }
+                  // Pegar descrições dos 2 últimos lançamentos
+                  lastFinDescriptions = finDocs
+                      .take(2)
+                      .map(
+                        (e) =>
+                            (e.data() as Map<String, dynamic>)['description']
+                                ?.toString() ??
+                            '',
+                      )
+                      .toList();
+                }
+                final saldo = totalReceitas - totalDespesas;
 
-                  // Ordenar por data de vencimento (mais próximos primeiro)
-                  financialEntries.sort((a, b) {
-                    final dateA = a['dueDate'] as DateTime?;
-                    final dateB = b['dueDate'] as DateTime?;
-                    if (dateA == null && dateB == null) return 0;
-                    if (dateA == null) return 1;
-                    if (dateB == null) return -1;
-                    return dateA.compareTo(dateB);
-                  });
-
-                  // Limitar a 3
-                  financialEntries = financialEntries.take(3).toList();
+                // --- PROCESSAMENTO DE ATIVIDADES ---
+                List<Map<String, dynamic>> lastWorkouts = [];
+                if (tasksSnapshot.hasData) {
+                  lastWorkouts = tasksSnapshot.data!.docs
+                      .map((doc) => doc.data() as Map<String, dynamic>)
+                      .toList();
+                  // Ordenação básica (simulada por ordem de chegada do stream ou campo date se houver)
                 }
 
-                final totalRecursos = totalReceitas - totalDespesas;
-
-                // Processar lista de compras
-                List<Map<String, dynamic>> shoppingItems = [];
-                if (shoppingSnapshot.hasData && shoppingSnapshot.data != null) {
-                  shoppingItems = shoppingSnapshot.data!.docs.map((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-                    return {
-                      'id': doc.id,
-                      'name': data['name'] ?? '',
-                      'category': data['category'] ?? 'Outros',
-                      'quantity': data['quantity'] ?? 1,
-                    };
-                  }).take(2).toList();
+                // --- PROCESSAMENTO DE ALIMENTAÇÃO ---
+                List<Map<String, dynamic>> dietEntries = [];
+                if (shoppingSnapshot.hasData) {
+                  dietEntries = shoppingSnapshot.data!.docs
+                      .map((doc) => doc.data() as Map<String, dynamic>)
+                      .toList();
                 }
-
-                // Processar atividades (pelo menos 2) - pegar as mais recentes
-                final activitiesTasks = tasks.length >= 2 
-                    ? tasks.take(2).toList()
-                    : tasks.toList();
 
                 return AppCarousel(
                   items: [
-                    // Primeira aba: Próximos Eventos
+                    // ABA 1: FINANÇAS (FOCO EM SALDO)
                     CarouselCardData(
-                      title: 'Próximos Eventos',
-                      subTitle: 'Produtividade',
-                      text1: upcomingTasks.isNotEmpty
-                          ? '${upcomingTasks[0]['tipo']}: ${_formatTime(upcomingTasks[0]['date'])}'
-                          : 'Sem eventos',
-                      text2: upcomingTasks.length > 1
-                          ? '${upcomingTasks[1]['tipo']}: ${_formatTime(upcomingTasks[1]['date'])}'
-                          : '',
-                      leftIcon: Icons.event_outlined,
-                      color: Colors.white,
-                      component: MyPieChart(percent: productivityPercent.toDouble()),
-                    ),
-                    // Segunda aba: Finanças
-                    CarouselCardData(
-                      title: 'Finanças',
-                      subTitle: 'Recursos',
-                      text1: financialEntries.isNotEmpty
-                          ? '${financialEntries[0]['description']}'
+                      title: 'Resumo Financeiro',
+                      subTitle: 'Saldo Total',
+                      text1: lastFinDescriptions.isNotEmpty
+                          ? 'Último: ${lastFinDescriptions[0]}'
                           : 'Sem lançamentos',
-                      text2: financialEntries.length > 1
-                          ? (financialEntries.length > 2 
-                              ? '${financialEntries[1]['description']}, ${financialEntries[2]['description']}'
-                              : financialEntries[1]['description'])
-                          : '',
+                      text2: lastFinDescriptions.length > 1
+                          ? 'Anterior: ${lastFinDescriptions[1]}'
+                          : 'Aguardando dados...',
                       leftIcon: Icons.account_balance_wallet_outlined,
-                      color: Colors.white,
                       component: TextBox(
-                        text: 'R\$ ${totalRecursos.toStringAsFixed(2)}',
+                        text: 'R\$ ${saldo.toStringAsFixed(2)}',
                       ),
                     ),
-                    // Terceira aba: Alimentação
+
+                    // ABA 2: ATIVIDADES (FOCO EM ÚLTIMO TREINO)
                     CarouselCardData(
-                      title: 'Alimentação',
-                      subTitle: 'Metas',
-                      text1: shoppingItems.isNotEmpty
-                          ? '${shoppingItems[0]['name']} (${shoppingItems[0]['quantity']})'
-                          : 'Sem itens',
-                      text2: shoppingItems.length > 1
-                          ? '${shoppingItems[1]['name']} (${shoppingItems[1]['quantity']})'
-                          : '',
-                      leftIcon: Icons.restaurant_menu_outlined,
-                      color: Colors.white,
-                      component: const TextBox(text: "-Kg"),
-                    ),
-                    // Última aba: Atividades
-                    CarouselCardData(
-                      title: 'Atividades',
-                      subTitle: activitiesTasks.isNotEmpty
-                          ? activitiesTasks[0]['duracao']
-                          : '',
-                      text1: activitiesTasks.isNotEmpty
-                          ? '${activitiesTasks[0]['tipo']}: ${_formatDate(activitiesTasks[0]['date'])}'
-                          : 'Sem atividades',
-                      text2: activitiesTasks.length > 1
-                          ? '${activitiesTasks[1]['tipo']}: ${activitiesTasks[1]['duracao']}'
-                          : '',
+                      title: 'Última Atividade',
+                      subTitle: lastWorkouts.isNotEmpty
+                          ? (lastWorkouts[0]['duracao'] ?? '0 min')
+                          : '0 min',
+                      text1: lastWorkouts.isNotEmpty
+                          ? '${lastWorkouts[0]['tipo'] ?? 'Treino'}'
+                          : 'Nenhuma atividade',
+                      text2: lastWorkouts.isNotEmpty
+                          ? 'Gasto: ${lastWorkouts[0]['calorias'] ?? 0} kcal'
+                          : 'Inicie um treino!',
                       leftIcon: Icons.fitness_center,
-                      color: Colors.white,
                       component: TextBox(
-                        text: activitiesTasks.isNotEmpty
-                            ? activitiesTasks[0]['duracao']
-                            : '',
+                        text: lastWorkouts.isNotEmpty
+                            ? '${lastWorkouts[0]['calorias']} kcal'
+                            : '-',
                       ),
+                    ),
+
+                    // ABA 3: ALIMENTAÇÃO (FOCO EM DIETA ATIVA)
+                    CarouselCardData(
+                      title: 'Plano Alimentar',
+                      subTitle: 'Meta Diária',
+                      text1: dietEntries.isNotEmpty
+                          ? 'Tipo: ${dietEntries[0]['tipoDieta'] ?? 'Geral'}'
+                          : 'Sem dieta ativa',
+                      text2: dietEntries.isNotEmpty
+                          ? 'Prazo: ${dietEntries[0]['prazo'] != null ? DateFormat('dd/MM').format(DateTime.parse(dietEntries[0]['prazo'])) : 'S/P'}'
+                          : 'Configure sua dieta',
+                      leftIcon: Icons.restaurant_menu_outlined,
+                      component: const TextBox(text: "Em dia"),
                     ),
                   ],
                 );
@@ -364,14 +290,6 @@ class _CarouselBuilder extends StatelessWidget {
         );
       },
     );
-  }
-
-  String _formatTime(DateTime date) {
-    return DateFormat('HH:mm').format(date);
-  }
-
-  String _formatDate(DateTime date) {
-    return DateFormat('dd/MM').format(date);
   }
 }
 
