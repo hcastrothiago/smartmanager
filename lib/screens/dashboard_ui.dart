@@ -5,7 +5,6 @@ import 'package:smartmanager/widgets/carousel.dart';
 import 'package:smartmanager/widgets/image_described.dart';
 import 'package:smartmanager/widgets/menu_sanduwitch.dart';
 import 'package:smartmanager/widgets/text_box.dart';
-import 'package:smartmanager/widgets/my_pie_chart.dart';
 import 'package:intl/intl.dart';
 
 class DashboardUI extends StatefulWidget {
