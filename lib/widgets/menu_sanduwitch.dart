@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SandwichMenu extends StatelessWidget {
   const SandwichMenu({super.key});
@@ -25,24 +27,7 @@ class SandwichMenu extends StatelessWidget {
                   fit: BoxFit.cover,
                 ),
                 const SizedBox(width: 10),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Felipe Emanuel',
-                      style: TextStyle(
-                        color: onHeaderColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'heraclito@thiago.com',
-                      style: TextStyle(color: onHeaderColor, fontSize: 11),
-                    ),
-                  ],
-                ),
+                _UserInfoDrawer(onHeaderColor: onHeaderColor),
               ],
             ),
           ),
@@ -121,8 +106,13 @@ class SandwichMenu extends StatelessWidget {
             padding: const EdgeInsets.all(16.0),
             child: Center(
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/login');
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                  if (context.mounted) {
+                    Navigator.of(
+                      context,
+                    ).pushNamedAndRemoveUntil('/login', (route) => false);
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.surface,
@@ -156,6 +146,136 @@ class SandwichMenu extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _UserInfoDrawer extends StatelessWidget {
+  final Color onHeaderColor;
+
+  const _UserInfoDrawer({required this.onHeaderColor});
+
+  @override
+  Widget build(BuildContext context) {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) {
+      return Expanded(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Usuário não autenticado',
+              style: TextStyle(
+                color: onHeaderColor,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text('', style: TextStyle(color: onHeaderColor, fontSize: 11)),
+          ],
+        ),
+      );
+    }
+
+    // Busca os dados do usuário no Firestore
+    return Expanded(
+      child: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(currentUser.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          // Enquanto carrega, mostra o email do Auth
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Carregando...',
+                  style: TextStyle(
+                    color: onHeaderColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  currentUser.email ?? '',
+                  style: TextStyle(color: onHeaderColor, fontSize: 11),
+                ),
+              ],
+            );
+          }
+
+          // Se houver erro ou dados não encontrados, usa dados do Auth
+          if (snapshot.hasError ||
+              !snapshot.hasData ||
+              !snapshot.data!.exists) {
+            String displayName =
+                currentUser.displayName ??
+                currentUser.email?.split('@')[0] ??
+                'Usuário';
+
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  displayName,
+                  style: TextStyle(
+                    color: onHeaderColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  currentUser.email ?? '',
+                  style: TextStyle(color: onHeaderColor, fontSize: 11),
+                ),
+              ],
+            );
+          }
+
+          // Dados do Firestore disponíveis
+          final userData = snapshot.data!.data() as Map<String, dynamic>?;
+
+          // Monta o nome completo: firstName + lastName ou username
+          String displayName;
+          if (userData != null) {
+            if (userData['firstName'] != null && userData['lastName'] != null) {
+              displayName = '${userData['firstName']} ${userData['lastName']}';
+            } else if (userData['username'] != null) {
+              displayName = userData['username'] as String;
+            } else {
+              displayName = currentUser.email?.split('@')[0] ?? 'Usuário';
+            }
+          } else {
+            displayName = currentUser.email?.split('@')[0] ?? 'Usuário';
+          }
+
+          // Email do Firestore ou do Auth
+          final email =
+              userData?['email'] as String? ?? currentUser.email ?? '';
+
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                displayName,
+                style: TextStyle(
+                  color: onHeaderColor,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(email, style: TextStyle(color: onHeaderColor, fontSize: 11)),
+            ],
+          );
+        },
       ),
     );
   }

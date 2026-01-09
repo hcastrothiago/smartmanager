@@ -165,43 +165,73 @@ class _CadastroScreenState extends State<CadastroScreen> {
       );
 
       // 3. SALVA DADOS NO FIRESTORE
-      // Local exato onde a operação de banco termina
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(cred.user!.uid)
-          .set({
-            'username': userController.text.trim(),
-            'firstName': firstNameController.text.trim(),
-            'lastName': lastNameController.text.trim(),
-            'email': emailController.text.trim(),
-            'idade': int.tryParse(ageController.text) ?? 0,
-            'genero': genero,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
+      try {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(cred.user!.uid)
+            .set({
+              'username': userController.text.trim(),
+              'firstName': firstNameController.text.trim(),
+              'lastName': lastNameController.text.trim(),
+              'email': emailController.text.trim(),
+              'idade': int.tryParse(ageController.text) ?? 0,
+              'genero': genero,
+              'createdAt': FieldValue.serverTimestamp(),
+            });
+      } catch (e) {
+        // Se houver erro no Firestore mas o usuário foi criado no Auth,
+        // ainda consideramos sucesso e redirecionamos
+        print('Erro ao salvar no Firestore: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Usuário criado, mas houve erro ao salvar dados adicionais."),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
 
-      // --- DAQUI PARA BAIXO É A MUDANÇA ---
-
-      if (!mounted)
-        return; // Verifica se o usuário não fechou a tela durante o processo
-
-      // Feedback de sucesso
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Sucesso! Cadastro realizado."),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      // Pequena pausa para o usuário ver o feedback
-      await Future.delayed(const Duration(milliseconds: 500));
-
+      // Verifica se o widget ainda está montado antes de continuar
       if (!mounted) return;
 
-      // REDIRECIONAMENTO ROBUSTO
-      // Limpa a pilha e vai para o login (ou home, como discutimos)
-      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+      // Feedback de sucesso
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Sucesso! Cadastro realizado. Redirecionando..."),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+
+      // Pequena pausa para o usuário ver o feedback
+      await Future.delayed(const Duration(milliseconds: 1000));
+
+      // Verifica novamente se o widget ainda está montado antes de navegar
+      if (!mounted) return;
+
+      // REDIRECIONAMENTO PARA A TELA DE LOGIN
+      // Garante que o redirecionamento aconteça mesmo se houver algum problema
+      if (mounted) {
+        // Desabilita o loading antes de navegar
+        setState(() => loading = false);
+        
+        // Pequeno delay para garantir que o estado foi atualizado
+        await Future.delayed(const Duration(milliseconds: 100));
+        
+        if (!mounted) return;
+        
+        // Navega para a tela de login
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/login',
+          (route) => false,
+        );
+      }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
+        setState(() => loading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.message ?? 'Erro no cadastro'),
@@ -209,8 +239,18 @@ class _CadastroScreenState extends State<CadastroScreen> {
           ),
         );
       }
-    } finally {
-      if (mounted) setState(() => loading = false);
+    } catch (e) {
+      // Captura qualquer outra exceção não esperada
+      print('Erro inesperado: $e');
+      if (mounted) {
+        setState(() => loading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
